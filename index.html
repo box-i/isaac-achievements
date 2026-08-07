@@ -21,7 +21,7 @@
   --gold-glow: #f0d060;
   --unlock-glow: #4a8;
   --tab-active: #8b3a3a;
-  --font-main: 'Georgia', 'Noto Serif SC', serif;
+  --font-main: 'Microsoft YaHei', '微软雅黑', 'PingFang SC', sans-serif;
   --font-mono: 'Courier New', monospace;
   --radius: 4px;
   --shadow: 0 2px 8px rgba(0,0,0,0.5);
@@ -70,14 +70,14 @@ body {
 }
 
 .title-group h1 {
-  font-size: 22px;
+  font-size: 25px;
   letter-spacing: 2px;
   color: var(--text-primary);
   text-shadow: 0 0 20px rgba(192,57,43,0.3);
 }
 
 .title-group .subtitle {
-  font-size: 12px;
+  font-size: 21px;
   color: var(--text-muted);
   letter-spacing: 1px;
 }
@@ -85,14 +85,14 @@ body {
 .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
 /* ===== Buttons ===== */
-.btn {
+.btn { padding: 10px 18px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   color: var(--text-primary);
   padding: 8px 16px;
   cursor: pointer;
   font-family: var(--font-main);
-  font-size: 13px;
+  font-size: 19px;
   letter-spacing: 1px;
   border-radius: var(--radius);
   transition: all 0.2s;
@@ -119,14 +119,14 @@ body {
   box-shadow: 0 0 16px rgba(192,57,43,0.3);
 }
 
-.btn.small { padding: 5px 10px; font-size: 11px; }
+.btn.small { padding: 5px 10px; font-size: 17px; }
 
 .save-slot-badge {
   background: var(--accent);
   color: #fff;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 17px;
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.2s;
@@ -145,16 +145,16 @@ body {
   align-items: center;
 }
 
-.stat-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.stat-item { display: flex; align-items: center; gap: 8px; font-size: 19px; }
 
 .stat-value {
-  font-size: 18px;
+  font-size: 21px;
   font-weight: bold;
   color: var(--gold);
   text-shadow: 0 0 8px rgba(201,169,78,0.3);
 }
 
-.stat-label { color: var(--text-secondary); font-size: 11px; }
+.stat-label { color: var(--text-secondary); font-size: 17px; }
 
 .progress-bar-wrap {
   flex: 1;
@@ -191,7 +191,7 @@ body {
   padding: 12px 20px;
   cursor: pointer;
   font-family: var(--font-main);
-  font-size: 13px;
+  font-size: 19px;
   letter-spacing: 1px;
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
@@ -209,7 +209,7 @@ body {
   background: rgba(192,57,43,0.05);
 }
 
-.tab-count { font-size: 10px; color: var(--text-muted); margin-left: 4px; }
+.tab-count { font-size: 19px; color: var(--text-muted); margin-left: 4px; }
 .tab-btn.active .tab-count { color: var(--accent-glow); }
 
 /* ===== Filters ===== */
@@ -229,7 +229,7 @@ body {
   color: var(--text-primary);
   padding: 6px 12px;
   font-family: var(--font-main);
-  font-size: 12px;
+  font-size: 21px;
   border-radius: var(--radius);
   width: 240px;
   outline: none;
@@ -243,7 +243,7 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 17px;
   cursor: pointer;
   color: var(--text-secondary);
   transition: all 0.2s;
@@ -261,7 +261,7 @@ body {
 
 .achievement-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 8px;
 }
 
@@ -346,7 +346,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: 40px;
 }
 
 .achievement-card:not(.unlocked) .ach-icon.fallback-icon {
@@ -356,13 +356,13 @@ body {
 .ach-info { flex: 1; min-width: 0; }
 
 .ach-name-en {
-  font-size: 11px;
+  font-size: 17px;
   color: var(--text-muted);
   margin-top: 1px;
   font-style: italic;
 }
 .ach-name {
-  font-size: 13px;
+  font-size: 19px;
   letter-spacing: 0.5px;
   color: var(--text-primary);
   white-space: nowrap;
@@ -373,7 +373,7 @@ body {
 .achievement-card.unlocked .ach-name { color: #b8d8d0; }
 
 .ach-desc {
-  font-size: 11px;
+  font-size: 17px;
   color: var(--text-muted);
   margin-top: 2px;
   white-space: nowrap;
@@ -392,7 +392,7 @@ body {
 }
 
 .ach-id {
-  font-size: 10px;
+  font-size: 19px;
   color: var(--text-muted);
   opacity: 0.5;
 }
@@ -403,7 +403,7 @@ body {
 	  background: var(--bg-card);
 	  border: 1px solid var(--border);
 	  color: var(--text-muted);
-	  font-size: 14px;
+	  font-size: 17px;
 	  cursor: pointer;
 	  padding: 4px 8px;
 	  border-radius: var(--radius);
@@ -421,7 +421,7 @@ body {
 	/* detail modal */
 	.detail-section { margin-bottom: 20px; }
 	.detail-section h3 {
-	  font-size: 13px;
+	  font-size: 19px;
 	  color: var(--text-muted);
 	  margin-bottom: 8px;
 	  letter-spacing: 1px;
@@ -430,17 +430,17 @@ body {
 	  padding-bottom: 6px;
 	}
 	.detail-section .detail-text {
-	  font-size: 14px;
+	  font-size: 17px;
 	  color: var(--text-primary);
 	  line-height: 1.8;
 	}
-	.detail-section .detail-text.reward-text { color: var(--gold); font-size: 15px; }
-	.detail-none { color: var(--text-muted); font-style: italic; font-size: 13px; }
+	.detail-section .detail-text.reward-text { color: var(--gold); font-size: 21px; }
+	.detail-none { color: var(--text-muted); font-style: italic; font-size: 19px; }
 .wiki-link { color: #e8a840; text-decoration: none; border-bottom: 1px dashed #e8a840; transition: all 0.2s; }
 .wiki-link:hover { color: #f0d060; border-bottom-color: #f0d060; background: rgba(232,168,64,0.08); }
 
 	.ach-pct {
-  font-size: 9px;
+  font-size: 21px;
   color: var(--text-muted);
   opacity: 0.4;
 }
@@ -455,9 +455,9 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .category-header:first-child { margin-top: 0; }
-.category-icon { font-size: 24px; }
-.category-title { font-size: 16px; letter-spacing: 1px; color: var(--gold); }
-.category-stats { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+.category-icon { font-size: 27px; }
+.category-title { font-size: 19px; letter-spacing: 1px; color: var(--gold); }
+.category-stats { font-size: 17px; color: var(--text-muted); margin-left: auto; }
 
 /* ===== Modal ===== */
 .modal-overlay {
@@ -485,16 +485,16 @@ body {
   box-shadow: 0 8px 40px rgba(0,0,0,0.8);
 }
 
-.modal h2 { font-size: 18px; letter-spacing: 1px; margin-bottom: 16px; color: var(--gold); display: flex; align-items: center; gap: 8px; }
-.modal h3 { font-size: 14px; color: var(--text-primary); margin: 16px 0 8px; letter-spacing: 0.5px; }
-.modal p, .modal li { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+.modal h2 { font-size: 21px; letter-spacing: 1px; margin-bottom: 16px; color: var(--gold); display: flex; align-items: center; gap: 8px; }
+.modal h3 { font-size: 17px; color: var(--text-primary); margin: 16px 0 8px; letter-spacing: 0.5px; }
+.modal p, .modal li { font-size: 19px; color: var(--text-secondary); line-height: 1.7; }
 .modal ul, .modal ol { padding-left: 20px; }
 .modal li { margin-bottom: 4px; }
-.modal .close-btn { float: right; background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+.modal .close-btn { float: right; background: none; border: none; color: var(--text-muted); font-size: 23px; cursor: pointer; padding: 4px 8px; }
 .modal .close-btn:hover { color: var(--accent-glow); }
 
 .form-group { margin-bottom: 12px; }
-.form-group label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; letter-spacing: 0.5px; }
+.form-group label { display: block; font-size: 21px; color: var(--text-secondary); margin-bottom: 4px; letter-spacing: 0.5px; }
 .form-group input, .form-group textarea {
   width: 100%;
   background: var(--bg-primary);
@@ -502,7 +502,7 @@ body {
   color: var(--text-primary);
   padding: 8px 12px;
   font-family: var(--font-main);
-  font-size: 13px;
+  font-size: 19px;
   border-radius: var(--radius);
   outline: none;
   resize: vertical;
@@ -520,7 +520,7 @@ body {
   color: var(--gold);
   padding: 10px 20px;
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: 19px;
   letter-spacing: 0.5px;
   z-index: 2000;
   animation: slideUp 0.3s ease, fadeOut 0.3s ease 2s forwards;
@@ -532,8 +532,8 @@ body {
 
 /* ===== Empty / Loading State ===== */
 .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-.empty-state .icon { font-size: 48px; margin-bottom: 16px; }
-.empty-state p { font-size: 14px; }
+.empty-state .icon { font-size: 52px; margin-bottom: 16px; }
+.empty-state p { font-size: 17px; }
 
 /* ===== File Drop ===== */
 .file-drop-zone {
@@ -547,7 +547,7 @@ body {
   margin: 12px 0;
 }
 .file-drop-zone:hover { border-color: var(--accent); background: rgba(192,57,43,0.05); }
-.file-drop-zone .icon { font-size: 36px; margin-bottom: 8px; }
+.file-drop-zone .icon { font-size: 40px; margin-bottom: 8px; }
 
 /* ===== Guide Steps ===== */
 .guide-step {
@@ -565,15 +565,15 @@ body {
   text-align: center;
   line-height: 24px;
   border-radius: 50%;
-  font-size: 12px;
+  font-size: 21px;
   margin-right: 8px;
 }
-.guide-step .step-title { font-size: 13px; color: var(--text-primary); letter-spacing: 0.5px; }
-.guide-step .step-desc { font-size: 11px; color: var(--text-muted); margin-top: 4px; padding-left: 32px; }
+.guide-step .step-title { font-size: 19px; color: var(--text-primary); letter-spacing: 0.5px; }
+.guide-step .step-desc { font-size: 17px; color: var(--text-muted); margin-top: 4px; padding-left: 32px; }
 
 /* ===== Data Source Indicator ===== */
 .data-source-badge {
-  font-size: 10px;
+  font-size: 19px;
   padding: 3px 8px;
   border-radius: 10px;
   letter-spacing: 0.5px;
@@ -590,7 +590,7 @@ body {
   .filter-row { padding: 8px 16px; }
   .filter-row input[type="text"] { width: 100%; }
   .tab-nav { padding: 0 12px; }
-  .tab-btn { padding: 10px 14px; font-size: 12px; }
+  .tab-btn { padding: 10px 14px; font-size: 21px; }
   .content-area { padding: 12px 16px; }
   .ach-icon { width: 54px; height: 54px; }
 }
@@ -598,7 +598,7 @@ body {
 /* ===== Category legend in all view ===== */
 .dlc-tag {
   display: inline-block;
-  font-size: 9px;
+  font-size: 21px;
   padding: 1px 6px;
   border-radius: 8px;
   letter-spacing: 0.3px;
@@ -692,7 +692,7 @@ body {
   <div class="modal">
     <button class="close-btn" onclick="closeModal('saveSlotModal')">✕</button>
     <h2>💾 存档管理</h2>
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
+    <p style="font-size:21px;color:var(--text-muted);margin-bottom:16px;">
       支持最多 3 个存档位，每个存档独立记录成就解锁状态。点击存档名可重命名。
     </p>
     <div id="saveSlotList"></div>
@@ -703,31 +703,31 @@ body {
 <div class="modal-overlay" id="importModal" style="display:none">
   <div class="modal">
     <button class="close-btn" onclick="closeModal('importModal')">✕</button>
-    <h2 style="font-size:22px;">📥 导入成就数据</h2>
+    <h2 style="font-size:25px;">📥 导入成就数据</h2>
 
     <div style="margin-bottom:12px;">
-      <strong style="font-size:16px;color:var(--text-primary);">📋 导入成就数据</strong>
-      <p style="font-size:13px;color:var(--text-muted);margin-top:6px;">选择 JSON 文件或粘贴内容，支持多种格式自动识别</p>
+      <strong style="font-size:19px;color:var(--text-primary);">📋 导入成就数据</strong>
+      <p style="font-size:19px;color:var(--text-muted);margin-top:6px;">选择 JSON 文件或粘贴内容，支持多种格式自动识别</p>
     </div>
     <div class="file-drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
       <div class="icon">📂</div>
-      <p style="font-size:15px;">点击选择文件，或将文件拖拽到此处</p>
-      <p style="font-size:13px;margin-top:6px;">支持 .json 文件</p>
+      <p style="font-size:21px;">点击选择文件，或将文件拖拽到此处</p>
+      <p style="font-size:19px;margin-top:6px;">支持 .json 文件</p>
     </div>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileImport(event)">
     <div class="form-group" style="margin-top:12px;">
-      <label style="font-size:14px;">粘贴 JSON 内容：</label>
-      <textarea id="jsonPaste" rows="6" style="font-family:var(--font-mono);font-size:13px;"
+      <label style="font-size:17px;">粘贴 JSON 内容：</label>
+      <textarea id="jsonPaste" rows="6" style="font-family:var(--font-mono);font-size:19px;"
         placeholder="粘贴 Steam API 返回的 JSON 数据，例如：&#10;{&quot;playerstats&quot;:{&quot;achievements&quot;:[{&quot;apiname&quot;:&quot;1&quot;,&quot;achieved&quot;:1},{&quot;apiname&quot;:&quot;2&quot;,&quot;achieved&quot;:0}]}}"></textarea>
     </div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+    <div style="font-size:21px;color:var(--text-muted);margin-bottom:12px;">
       支持格式：Steam Web API (playerstats.achievements)、成就对象数组、纯字符串数组。
       匹配规则：优先匹配 Steam API 名称，再匹配中文/英文成就名。
     </div>
     <div class="modal-actions">
-      <button class="btn" onclick="closeModal('importModal')" style="font-size:14px;padding:10px 20px;">取消</button>
-      <button class="btn" style="background:rgba(201,169,78,0.15);color:#c9a94e;font-size:14px;padding:10px 20px;" onclick="loadSampleImportData()">📋 填入示例</button>
-      <button class="btn accent" onclick="processJsonImport()" style="font-size:14px;padding:10px 20px;">解析并导入</button>
+      <button class="btn" onclick="closeModal('importModal')" style="font-size:17px;padding:10px 20px;">取消</button>
+      <button class="btn" style="background:rgba(201,169,78,0.15);color:#c9a94e;font-size:17px;padding:10px 20px;" onclick="loadSampleImportData()">📋 填入示例</button>
+      <button class="btn accent" onclick="processJsonImport()" style="font-size:17px;padding:10px 20px;">解析并导入</button>
     </div>
   </div>
 </div>
@@ -737,7 +737,7 @@ body {
   <div class="modal">
     <button class="close-btn" onclick="closeModal('guideModal')">✕</button>
     <h2>📖 新人解锁流程指南</h2>
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+    <p style="font-size:21px;color:var(--text-muted);margin-bottom:12px;">
       推荐按以下顺序逐步推进，高效解锁游戏核心内容。
     </p>
 
@@ -817,7 +817,7 @@ body {
       <div class="step-desc">需要大量游戏时间，是 Dead God 的最后阶段</div>
     </div>
 
-    <p style="font-size:11px;color:var(--text-muted);margin-top:16px;text-align:center;">
+    <p style="font-size:17px;color:var(--text-muted);margin-top:16px;text-align:center;">
       💡 新手推荐先玩 Azazel（飞行+短程硫磺火），再用 Isaac（D6可roll道具）深度探索。
     </p>
   </div>
@@ -1196,7 +1196,7 @@ function renderAll() {
   const achievements = getFilteredAchievements();
 
   if (achievements.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>没有找到匹配的成就</p><p style="font-size:11px;margin-top:4px;">试试调整筛选条件或搜索关键词</p></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>没有找到匹配的成就</p><p style="font-size:17px;margin-top:4px;">试试调整筛选条件或搜索关键词</p></div>`;
     return;
   }
 
@@ -1359,7 +1359,7 @@ function showAchievementDetail(id) {
   if (!a) return;
 
   const hasEn = a.nameEn && a.nameEn !== a.name;
-  const titleHtml = hasEn ? `${a.name} <span style="font-size:13px;color:var(--text-muted);">(${a.nameEn})</span>` : a.name;
+  const titleHtml = hasEn ? `${a.name} <span style="font-size:19px;color:var(--text-muted);">(${a.nameEn})</span>` : a.name;
   const condHtml = a.unlockCond ? linkifyWikiTerms(a.unlockCond) : '<span class="detail-none">暂无数据</span>';
   const rewardHtml = a.reward ? linkifyWikiTerms(a.reward) : '<span class="detail-none">暂无数据</span>';
 
@@ -1369,10 +1369,10 @@ function showAchievementDetail(id) {
 
   document.getElementById('detailContent').innerHTML = `
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
-      ${iconUrl ? `<div class="ach-icon" style="width:64px;height:64px;flex-shrink:0;"><img src="${iconUrl}" alt="" style="width:100%;height:100%;object-fit:contain;" /></div>` : `<span style="font-size:40px;">${a.icon || '#'+a.id}</span>`}
+      ${iconUrl ? `<div class="ach-icon" style="width:64px;height:64px;flex-shrink:0;"><img src="${iconUrl}" alt="" style="width:100%;height:100%;object-fit:contain;" /></div>` : `<span style="font-size:44px;">${a.icon || '#'+a.id}</span>`}
       <div>
         <h2 style="margin:0 0 4px;">${titleHtml}</h2>
-        <div style="font-size:12px;color:var(--text-muted);">
+        <div style="font-size:21px;color:var(--text-muted);">
           #${a.id} · ${{character:"角色成就类",progression:"流程成就类",progress:"进度类",cumulative:"累计成就类",character_unlock:"角色解锁进度"}[a.cat] || a.cat}
           ${a.globalPercent != null ? ` · 全球 ${a.globalPercent}%` : ''}
         </div>
@@ -1400,13 +1400,13 @@ function openSaveSlots() {
     const cnt = (s.unlocked || []).length;
     const isActive = i === currentSlot;
     return `<div style="display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:8px;background:var(--bg-card);border:1px solid ${isActive?'var(--accent)':'var(--border)'};border-radius:var(--radius);">
-      <span style="font-size:24px;">${isActive ? '📂' : '📁'}</span>
+      <span style="font-size:27px;">${isActive ? '📂' : '📁'}</span>
       <div style="flex:1;">
         <input type="text" value="${escapeHtml(s.name)}" onchange="renameSlot(${i}, this.value)"
-          style="background:transparent;border:none;color:var(--text-primary);font-family:var(--font-main);font-size:14px;width:100%;outline:none;" />
-        <div style="font-size:11px;color:var(--text-muted);">${cnt}/${ACHIEVEMENTS.length} 已解锁</div>
+          style="background:transparent;border:none;color:var(--text-primary);font-family:var(--font-main);font-size:17px;width:100%;outline:none;" />
+        <div style="font-size:17px;color:var(--text-muted);">${cnt}/${ACHIEVEMENTS.length} 已解锁</div>
       </div>
-      ${isActive ? '<span style="color:var(--accent-glow);font-size:11px;">当前</span>'
+      ${isActive ? '<span style="color:var(--accent-glow);font-size:17px;">当前</span>'
         : `<button class="btn small" onclick="switchSlot(${i})">切换</button>`}
     </div>`;
   }).join('');
