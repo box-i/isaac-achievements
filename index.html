@@ -436,6 +436,8 @@ body {
 	}
 	.detail-section .detail-text.reward-text { color: var(--gold); font-size: 15px; }
 	.detail-none { color: var(--text-muted); font-style: italic; font-size: 13px; }
+.wiki-link { color: #e8a840; text-decoration: none; border-bottom: 1px dashed #e8a840; transition: all 0.2s; }
+.wiki-link:hover { color: #f0d060; border-bottom-color: #f0d060; background: rgba(232,168,64,0.08); }
 
 	.ach-pct {
   font-size: 9px;
@@ -700,58 +702,31 @@ body {
 <div class="modal-overlay" id="importModal" style="display:none">
   <div class="modal">
     <button class="close-btn" onclick="closeModal('importModal')">✕</button>
-    <h2>📥 导入成就数据</h2>
+    <h2 style="font-size:22px;">📥 导入成就数据</h2>
 
-    <!-- ===== Method 1: Direct fetch from Steam ===== -->
-    <div style="margin-bottom:14px;padding:12px 14px;background:rgba(74,136,136,0.08);border:1px solid rgba(74,136,136,0.3);border-radius:8px;">
-      <strong style="color:var(--accent-glow);">🚀 方式一：直接获取（推荐）</strong>
-      <p style="font-size:11px;color:var(--text-muted);margin:4px 0 8px;">
-        输入你的 Steam64 ID，自动从 Steam 服务器获取成就进度
-      </p>
-      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
-        <div style="flex:1;min-width:160px;">
-          <label style="font-size:10px;color:var(--text-muted);">Steam64 ID</label>
-          <input type="text" id="steamIdInput" placeholder="7656119XXXXXXXXXX"
-            style="width:100%;padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:13px;box-sizing:border-box;">
-        </div>
-        <div style="flex:1;min-width:200px;">
-          <label style="font-size:10px;color:var(--text-muted);">Steam API Key（<a href="https://steamcommunity.com/dev/apikey" target="_blank" style="color:var(--accent);">获取</a>）</label>
-          <input type="text" id="steamApiKeyInput" placeholder="输入你的 Steam Web API Key"
-            style="width:100%;padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-family:var(--font-mono);font-size:13px;box-sizing:border-box;">
-        </div>
-        <button class="btn accent" onclick="fetchFromSteam()" id="steamFetchBtn" style="white-space:nowrap;">🔗 从 Steam 获取</button>
-      </div>
-      <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">
-        💡 Steam64 ID 查找：Steam 客户端 → 右上角头像 → <strong>账户明细</strong> → 页面下方「Steam ID」即为 7651 开头的17位数字
-      </div>
-      <div id="steamFetchStatus" style="font-size:11px;margin-top:6px;display:none;"></div>
-    </div>
-
-    <div style="text-align:center;margin-bottom:12px;color:var(--text-muted);font-size:12px;">— 或者 —</div>
-
-    <!-- ===== Method 2: Manual JSON paste ===== -->
-    <div style="margin-bottom:10px;font-size:12px;color:var(--text-muted);">
-      <strong>📋 方式二：手动粘贴 JSON</strong>
+    <div style="margin-bottom:12px;">
+      <strong style="font-size:16px;color:var(--text-primary);">📋 导入成就数据</strong>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:6px;">选择 JSON 文件或粘贴内容，支持多种格式自动识别</p>
     </div>
     <div class="file-drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
       <div class="icon">📂</div>
-      <p>点击选择文件，或将文件拖拽到此处</p>
-      <p style="font-size:10px;margin-top:4px;">支持 .json 文件</p>
+      <p style="font-size:15px;">点击选择文件，或将文件拖拽到此处</p>
+      <p style="font-size:13px;margin-top:6px;">支持 .json 文件</p>
     </div>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileImport(event)">
     <div class="form-group" style="margin-top:12px;">
-      <label>粘贴 JSON 内容：</label>
-      <textarea id="jsonPaste" rows="6" style="font-family:var(--font-mono);font-size:11px;"
+      <label style="font-size:14px;">粘贴 JSON 内容：</label>
+      <textarea id="jsonPaste" rows="6" style="font-family:var(--font-mono);font-size:13px;"
         placeholder="粘贴 Steam API 返回的 JSON 数据，例如：&#10;{&quot;playerstats&quot;:{&quot;achievements&quot;:[{&quot;apiname&quot;:&quot;1&quot;,&quot;achieved&quot;:1},{&quot;apiname&quot;:&quot;2&quot;,&quot;achieved&quot;:0}]}}"></textarea>
     </div>
-    <div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;">
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
       支持格式：Steam Web API (playerstats.achievements)、成就对象数组、纯字符串数组。
       匹配规则：优先匹配 Steam API 名称，再匹配中文/英文成就名。
     </div>
     <div class="modal-actions">
-      <button class="btn" onclick="closeModal('importModal')">取消</button>
-      <button class="btn" style="background:rgba(201,169,78,0.15);color:#c9a94e;" onclick="loadSampleImportData()">📋 填入示例</button>
-      <button class="btn accent" onclick="processJsonImport()">解析并导入</button>
+      <button class="btn" onclick="closeModal('importModal')" style="font-size:14px;padding:10px 20px;">取消</button>
+      <button class="btn" style="background:rgba(201,169,78,0.15);color:#c9a94e;font-size:14px;padding:10px 20px;" onclick="loadSampleImportData()">📋 填入示例</button>
+      <button class="btn accent" onclick="processJsonImport()" style="font-size:14px;padding:10px 20px;">解析并导入</button>
     </div>
   </div>
 </div>
@@ -1351,14 +1326,41 @@ document.getElementById('tabNav').addEventListener('click', function(e) {
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
+
+// ============================================================
+// WIKI TERM LINKING — auto-link Isaac wiki terms
+// ============================================================
+const _WIKI_BASE = 'https://isaac.huijiwiki.com/wiki/';
+const _WIKI_TERMS = {"以撒":"以撒","抹大拉":"抹大拉","该隐":"该隐","犹大":"犹大","参孙":"参孙","夏娃":"夏娃","伊甸":"伊甸","亚玻伦":"亚玻伦","伯大尼":"伯大尼","店主":"店主","拉撒路":"拉撒路","莉莉丝":"莉莉丝","阿撒泻勒":"阿撒泻勒","遗骸":"遗骸","游魂":"游魂","雅各和以扫":"雅各和以扫","???":"???","堕化以撒":"堕化以撒","堕化抹大拉":"堕化抹大拉","堕化该隐":"堕化该隐","堕化犹大":"堕化犹大","堕化参孙":"堕化参孙","堕化夏娃":"堕化夏娃","堕化伊甸":"堕化伊甸","堕化亚玻伦":"堕化亚玻伦","堕化伯大尼":"堕化伯大尼","堕化店主":"堕化店主","堕化拉撒路":"堕化拉撒路","堕化莉莉丝":"堕化莉莉丝","堕化阿撒泻勒":"堕化阿撒泻勒","堕化遗骸":"堕化遗骸","堕化游魂":"堕化游魂","堕化雅各":"堕化雅各","堕化???":"堕化???","雅各":"雅各","以扫":"以扫","小以扫":"小以扫","复得游魂":"复得游魂","迷失游魂":"迷失游魂","作孽双子":"作孽双子","妈妈的心脏":"妈妈的心脏","它还活着":"它还活着","超级撒但":"超级撒但","精神错乱":"精神错乱","妈妈":"妈妈","撒但":"撒但","撒旦":"撒但","羔羊":"羔羊","死寂":"死寂","母亲":"母亲","祸兽":"祸兽","分身洛基":"分身洛基","小角恶魔":"小角恶魔","糖梅宝宝":"糖梅宝宝","乌列加百列":"乌列","洛基":"洛基","史蒂文":"史蒂文","吉什":"吉什","坎卜斯":"坎卜斯","查德":"查德","黑洞":"黑洞","乌列":"乌列","加百列":"加百列","大爆弹先生":"大爆弹先生","萌死戳":"萌死戳","骨堆畸胎":"骨堆畸胎","超级绷带人":"超级绷带人","开膛姐妹":"开膛姐妹","巨角恶魔":"巨角恶魔","胖蛆族母":"胖蛆族母","裂面爬墙蛛":"裂面爬墙蛛","脆皮虫":"脆皮虫","粪山幼崽":"粪山幼崽","滑坨坨":"滑坨坨","血痕":"血痕","畸胎":"畸胎","布朗尼":"布朗尼","被遗弃者":"被遗弃者","绷带人":"绷带人","大乞丐":"大乞丐","宝":"宝","饥荒骑士":"天启骑士","瘟疫骑士":"天启骑士","战争骑士":"天启骑士","征服骑士":"天启骑士","死亡骑士":"天启骑士","懒惰":"七原罪","色欲":"七原罪","愤怒":"七原罪","暴食":"七原罪","贪婪":"七原罪","嫉妒":"七原罪","傲慢":"七原罪","淹水洞穴":"淹水洞穴","燃烧地下室":"燃烧地下室","阴湿深牢":"阴湿深牢","地下室":"地下室","洞穴":"洞穴","深牢":"深牢","矿洞":"矿洞","陵墓":"陵墓","下水道":"下水道","暗室":"暗室","宝箱房":"宝箱房","地窖":"地窖","坟场":"坟场","墓穴":"墓穴","灰坑":"灰坑","污水井":"污水井","熔炉":"熔炉","困难贪婪模式":"困难贪婪模式","红色贮藏室":"红色贮藏室","每日挑战":"每日挑战","联机模式":"联机模式","捐款机":"捐款机","贪婪机":"贪婪机","天使房":"天使房","恶魔房":"恶魔房","Boss Rush":"Boss Rush","贪婪模式":"贪婪模式","困难模式":"困难模式","星象房":"星象房","隐藏房":"隐藏房","错误房":"错误房","商店":"商店","恶魔交易":"恶魔交易","跑圈":"跑圈","通关标记":"通关标记","献血机":"献血机","电池乞丐":"电池乞丐","赌博乞丐":"赌博乞丐","商店店主":"店主","赌博机":"赌博机","第一章":"章节","第二章":"章节","第三章":"章节","第四章":"章节","第五章":"章节","第六章":"章节","妈妈的铲子":"妈妈的铲子","潘多拉魔盒":"潘多拉魔盒","空白卡牌":"空白卡牌","损坏的怀表":"损坏的怀表","橡胶胶水":"橡胶胶水","车载电池":"车载电池","钥匙碎片1":"钥匙碎片","钥匙碎片2":"钥匙碎片","神圣屏障":"神圣屏障","恶魔受胎":"恶魔受胎","小孩的心脏":"小孩的心脏","商店钥匙":"商店钥匙","木制镍币":"木制镍币","圣经":"圣经","怀表":"怀表","蓄电池":"蓄电池","硫磺火":"硫磺火","妈刀":"妈刀","神性":"神性","圣心":"圣心","六面骰":"六面骰","底片":"底片","全家福":"全家福","咕噜！":"咕噜！","血块":"血块","9伏特":"9伏特","肉块":"肉块","绷带妹":"绷带妹","绷带球":"绷带球","嗝屁猫":"嗝屁猫","猫套":"猫套","错误技":"错误技","回形针":"回形针","体力回满":"体力回满","贫血":"贫血","剃刀片":"剃刀片","XIII-死亡":"XIII-死亡","XIX-太阳":"XIX-太阳","怪物图鉴":"怪物图鉴","妈妈的箱子":"妈妈的箱子","彩虹大便":"彩虹大便","标记石头":"标记石头","金箱子":"金箱子","永恒箱子":"永恒箱子","大箱子":"大箱子","小箱子":"小箱子","木箱子":"木箱子","心之容器":"心之容器","蓝苍蝇":"蓝苍蝇","硬币":"硬币","炸弹":"炸弹","钥匙":"钥匙","卡牌":"卡牌","胶囊":"胶囊","饰品":"饰品","符文":"符文","心":"心","魂心":"魂心","电池":"电池","大便":"大便","石头":"障碍物","标签\"射速上升\"":"射速上升","标签\"死亡\"":"标签\"死亡\"","标签\"注射器\"":"标签\"注射器\"","标签\"电池\"":"标签\"电池\"","标签\"科技\"":"标签\"科技\"","标签\"嗝屁猫\"":"嗝屁猫","标签\"妈妈\"":"妈妈","标签\"星星\"":"标签\"星星\"","标签\"苍蝇\"":"标签\"苍蝇\""};
+const _wikiTermEntries = Object.entries(_WIKI_TERMS)
+  .sort((a, b) => b[0].length - a[0].length);
+
+function _escRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function linkifyWikiTerms(text) {
+  if (!text) return text;
+  let result = text;
+  _wikiTermEntries.forEach(([term, pageName]) => {
+    const escaped = _escRegex(term);
+    const regex = new RegExp(escaped, 'g');
+    const url = _WIKI_BASE + encodeURI(pageName);
+    result = result.replace(regex, (match) => {
+      return `<a href="${url}" target="_blank" class="wiki-link" title="在 wiki 中查看「${term}」">${match}</a>`;
+    });
+  });
+  return result;
+}
+
 function showAchievementDetail(id) {
   const a = ACHIEVEMENTS.find(x => x.id === id);
   if (!a) return;
 
   const hasEn = a.nameEn && a.nameEn !== a.name;
   const titleHtml = hasEn ? `${a.name} <span style="font-size:13px;color:var(--text-muted);">(${a.nameEn})</span>` : a.name;
-  const condHtml = a.unlockCond || '<span class="detail-none">暂无数据</span>';
-  const rewardHtml = a.reward || '<span class="detail-none">暂无数据</span>';
+  const condHtml = a.unlockCond ? linkifyWikiTerms(a.unlockCond) : '<span class="detail-none">暂无数据</span>';
+  const rewardHtml = a.reward ? linkifyWikiTerms(a.reward) : '<span class="detail-none">暂无数据</span>';
 
   const iconUrl = a.iconHash
     ? `https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/250900/${a.iconHash}.jpg`
@@ -1424,20 +1426,6 @@ function escapeHtml(str) {
 function openImportModal() {
   document.getElementById('jsonPaste').value = '';
   document.getElementById('fileInput').value = '';
-  document.getElementById('steamFetchStatus').style.display = 'none';
-  // Show deploy warning when not on localhost
-  try {
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const note = document.getElementById('deployNote');
-    if (note) note.style.display = isLocal ? 'none' : 'block';
-  } catch(e) {}
-  // Restore saved API key and Steam ID
-  try {
-    const savedKey = localStorage.getItem('isaac_steam_api_key');
-    const savedId = localStorage.getItem('isaac_steam_id');
-    if (savedKey) document.getElementById('steamApiKeyInput').value = savedKey;
-    if (savedId) document.getElementById('steamIdInput').value = savedId;
-  } catch(e) {}
   openModal('importModal');
 }
 
@@ -1473,66 +1461,6 @@ function loadSampleImportData() {
   };
   document.getElementById('jsonPaste').value = JSON.stringify(sample, null, 2);
   showToast('📋 已填入示例数据，点击「解析并导入」测试');
-}
-
-async function fetchFromSteam() {
-  const steamId = document.getElementById('steamIdInput').value.trim();
-  const apiKey = document.getElementById('steamApiKeyInput').value.trim();
-  const statusEl = document.getElementById('steamFetchStatus');
-  const btn = document.getElementById('steamFetchBtn');
-
-  if (!steamId) { showToast('⚠️ 请先输入 Steam64 ID'); return; }
-  if (!apiKey) { showToast('⚠️ 请先输入 Steam API Key（在 steamcommunity.com/dev/apikey 获取）'); return; }
-  if (!/^\d{17}$/.test(steamId)) { showToast('⚠️ Steam64 ID 格式不正确，应为17位数字'); return; }
-
-  // Save API key for next time
-  try { localStorage.setItem('isaac_steam_api_key', apiKey); localStorage.setItem('isaac_steam_id', steamId); } catch(e) {}
-
-  btn.disabled = true;
-  btn.textContent = '⏳ 获取中...';
-  statusEl.style.display = 'block';
-  statusEl.style.color = 'var(--text-muted)';
-  statusEl.textContent = '正在连接 Steam 服务器...';
-
-  try {
-    const url = `/api/steam/achievements?steamid=${steamId}&key=${apiKey}`;
-    const resp = await fetch(url);
-    if (!resp.ok) {
-      const txt = await resp.text();
-      throw new Error(`HTTP ${resp.status}: ${txt.substring(0, 100)}`);
-    }
-    const data = await resp.json();
-
-    if (!data.playerstats?.achievements) {
-      // Check for error
-      if (data.playerstats?.error) {
-        throw new Error(data.playerstats.error);
-      }
-      throw new Error('返回数据异常：' + JSON.stringify(data).substring(0, 200));
-    }
-
-    const achievements = data.playerstats.achievements;
-    const unlocked = achievements.filter(a => a.achieved === 1 || a.achieved === true);
-
-    statusEl.style.color = '#5a9a8a';
-    statusEl.textContent = `✅ 获取成功！共 ${achievements.length} 个成就，其中 ${unlocked.length} 个已解锁`;
-
-    // Fill the JSON textarea and process import
-    document.getElementById('jsonPaste').value = JSON.stringify(data, null, 2);
-    processJsonImport();
-
-  } catch (e) {
-    statusEl.style.color = '#d4736a';
-    if (e.message === 'Failed to fetch') {
-      statusEl.textContent = '❌ 获取失败：file:// 协议不支持跨域请求。请改用方式二：用下方「📂 选择文件」导入 steam_achievements.json。提示：可以用上方填好的 SteamID 和 Key 运行 node fetch_steam.js 获取数据。';
-    } else {
-      statusEl.textContent = `❌ 获取失败：${e.message}`;
-    }
-    console.error('fetchFromSteam error:', e);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '🔗 从 Steam 获取';
-  }
 }
 
 function handleFileImport(event) {
