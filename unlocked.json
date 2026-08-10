@@ -3,11 +3,10 @@
   "appId": "250900",
   "unlockedApinames": [],
   "count": 0,
-  "updatedAt": "2026-08-10T08:40:12.679Z",
+  "updatedAt": "2026-08-10T08:47:49.477Z",
   "debug": {
     "xmlLength": 327769,
     "achievementTagCount": 642,
-    "hasPlayerstats": true,
-    "xmlHead": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><playerstats>\n\t<privacyState>public</privacyState>\n\t<visibilityState>3</visibilityState>\n\t<game>\n\t\t<gameFriendlyName><![CDATA[250900]]></gameFriendlyName>\n\t\t<gameName><![CDATA[The Binding of Isaac: Rebirth]]></gameName>\n\t\t<gameLink><![CDATA[https://steamcommunity.com/app/250900]]></gameLink>\n\t\t<gameIcon><![CDATA[https://shared.fastly.steamstatic.com/community_assets/images/apps/250900/16d46c8630499bfc54d20745ac90786a302cd643.jpg]]></gameIcon>\n\t\t<gameLogo><![CDATA[https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/250900/capsule_184x69.jpg?t=1731977365]]></gameLogo>\n\t\t<gameLogoSmall><![CDATA[https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/250900/capsule_184x69.jpg?t=1731977365]]></gameLogoSmall>\n\t</gam"
+    "firstAchievementRaw": "<achievements>\n\t\t<achievement closed=\"1\">\n\t\t\t<iconClosed><![CDATA[https://shared.fastly.steamstatic.com/community_assets/images/apps/250900/a36d7e92df7e991758907a75dfa55d36b52548c4.jpg]]></iconClosed>\n\t\t\t<iconOpen><![CDATA[https://shared.fastly.steamstatic.com/community_assets/images/apps/250900/fc5c40f3429120652211c9e95570752ba5810f22.jpg]]></iconOpen>\n\t\t\t<name><![CDATA[Magdalene]]></name>\n\t\t\t<apiname><![CDATA[1]]></apiname>\n\t\t\t<description><![CDATA[Unlocked a new character.]]></description>\n\t\t\t<unlockTimestamp>1782920891</unlockTimestamp>\n\t\t</achievement>\n\t\t<achievement closed=\"1\">\n\t\t\t<iconC"
   }
 }
