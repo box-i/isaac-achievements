@@ -21,31 +21,45 @@ const strip = (s) => (s || '').replace(/^<!\[CDATA\[([\s\S]*?)\]\]>$/, '$1').rep
 function parseXml(xml) {
   const unlocked = [];
 
-  // 形式1：自闭合属性 <achievement closed="1" apiname="X" ... />
-  const selfRe = /<achievement\b([^>]*?)\/?>/gi;
+  // Steam 实际为混合格式：<achievement closed="1"> 开标签带 closed 属性，
+  // apiname/name 等是子元素且被 CDATA 包裹。统一处理：匹配每个块，
+  // 从开标签属性或子元素中取 closed 与 apiname（兼容纯属性/纯子元素形式）。
+  const blockRe = /<achievement\b([^>]*)>([\s\S]*?)<\/achievement>/gi;
   let m;
-  while ((m = selfRe.exec(xml)) !== null) {
-    const attrs = m[1];
-    const closedM = attrs.match(/closed\s*=\s*"([^"]*)"/i);
-    const apiM = attrs.match(/apiname\s*=\s*"([^"]*)"/i);
-    if (closedM && strip(closedM[1]) === '1' && apiM && strip(apiM[1])) {
-      unlocked.push(strip(apiM[1]));
+  while ((m = blockRe.exec(xml)) !== null) {
+    const openAttrs = m[1];
+    const inner = m[2];
+
+    let closed = null;
+    const closedAttr = openAttrs.match(/closed\s*=\s*"([^"]*)"/i);
+    if (closedAttr) closed = strip(closedAttr[1]);
+    if (closed === null) {
+      const closedEl = inner.match(/<closed>([\s\S]*?)<\/closed>/i);
+      if (closedEl) closed = strip(closedEl[1]);
     }
+
+    let apiname = null;
+    const apiEl = inner.match(/<apiname>([\s\S]*?)<\/apiname>/i);
+    if (apiEl) apiname = strip(apiEl[1]);
+    if (!apiname) {
+      const apiAttr = openAttrs.match(/apiname\s*=\s*"([^"]*)"/i);
+      if (apiAttr) apiname = strip(apiAttr[1]);
+    }
+
+    if (closed === '1' && apiname) unlocked.push(apiname);
   }
 
-  // 形式2：子元素 <achievement>...<apiname><![CDATA[X]]></apiname>...<closed>1</closed>...</achievement>
+  // 兜底：纯自闭合形式 <achievement closed="1" apiname="X" />
   if (unlocked.length === 0) {
-    const blockRe = /<achievement\b[^>]*>([\s\S]*?)<\/achievement>/gi;
-    let b;
-    while ((b = blockRe.exec(xml)) !== null) {
-      const inner = b[1];
-      const pick = (tag) => {
-        const rm = inner.match(new RegExp('<' + tag + '>([\\s\\S]*?)</' + tag + '>', 'i'));
-        return rm ? strip(rm[1]) : null;
-      };
-      const closed = pick('closed');
-      const apiname = pick('apiname');
-      if (closed === '1' && apiname) unlocked.push(apiname);
+    const selfRe = /<achievement\b([^>]*?)\/>/gi;
+    let s;
+    while ((s = selfRe.exec(xml)) !== null) {
+      const attrs = s[1];
+      const closedM = attrs.match(/closed\s*=\s*"([^"]*)"/i);
+      const apiM = attrs.match(/apiname\s*=\s*"([^"]*)"/i);
+      if (closedM && strip(closedM[1]) === '1' && apiM && strip(apiM[1])) {
+        unlocked.push(strip(apiM[1]));
+      }
     }
   }
 
