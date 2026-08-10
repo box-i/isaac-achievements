@@ -1647,8 +1647,12 @@ function processJsonImport() {
   if (!raw) { showToast('⚠️ 请先粘贴内容或选择文件'); return; }
 
   // Detect XML input (from Steam public endpoint ?xml=1)
-  if (raw.startsWith('<?xml') || raw.startsWith('<playerstats>') || raw.startsWith('<playerstats ')) {
-    const achievements = parseSteamXml(raw);
+  // Use includes() instead of startsWith() because browser-rendered XML pages
+  // prepend "This XML file does not appear..." message before the actual XML
+  if (raw.includes('<playerstats')) {
+    const xmlStart = raw.indexOf('<playerstats');
+    const xmlText = xmlStart > 0 ? raw.substring(xmlStart) : raw;
+    const achievements = parseSteamXml(xmlText);
     if (!achievements || achievements.length === 0) {
       showToast('⚠️ 未能解析 XML，请确认内容是 Steam 成就页面（?xml=1）的完整 XML');
       return;
