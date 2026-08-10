@@ -492,6 +492,10 @@ body {
 .modal li { margin-bottom: 4px; }
 .modal .close-btn { float: right; background: none; border: none; color: var(--text-muted); font-size: 21px; cursor: pointer; padding: 4px 8px; }
 .modal .close-btn:hover { color: var(--accent-glow); }
+.modal details summary { font-size: 17px; color: var(--text-muted); cursor: pointer; padding: 4px 0; }
+.modal details summary:hover { color: var(--gold); }
+.modal details ol { font-size: 17px; line-height: 1.8; }
+#steamFetchStatus { padding: 8px 12px; border-radius: var(--radius); background: var(--bg-primary); line-height: 1.6; }
 
 .form-group { margin-bottom: 12px; }
 .form-group label { display: block; font-size: 21px; color: var(--text-secondary); margin-bottom: 4px; letter-spacing: 0.5px; }
@@ -705,22 +709,47 @@ body {
     <button class="close-btn" onclick="closeModal('importModal')">✕</button>
     <h2 style="font-size:25px;">📥 导入成就数据</h2>
 
+    <!-- Method 1: One-click Steam import -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+      <strong style="font-size:19px;color:var(--gold);">🔗 一键导入（推荐）</strong>
+      <p style="font-size:17px;color:var(--text-muted);margin:6px 0 10px;">
+        输入你的 Steam64 ID 或个人资料链接，自动拉取成就数据。无需 API Key，无需下载文件。
+      </p>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="steamIdInput"
+          placeholder="Steam64 ID（17位数字）或 https://steamcommunity.com/profiles/..."
+          style="flex:1;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-primary);padding:10px 14px;font-family:var(--font-main);font-size:17px;border-radius:var(--radius);" />
+        <button class="btn accent" onclick="fetchSteamAchievements()" id="btnSteamFetch"
+          style="font-size:17px;padding:10px 20px;white-space:nowrap;">🔍 获取成就</button>
+      </div>
+      <details style="margin-top:10px;">
+        <summary style="font-size:17px;color:var(--text-muted);cursor:pointer;">💡 怎么找到我的 Steam64 ID？</summary>
+        <ol style="font-size:17px;color:var(--text-secondary);margin:8px 0 0 20px;line-height:1.8;">
+          <li>打开 Steam 客户端</li>
+          <li>点击右上角头像 → <strong>账户明细</strong></li>
+          <li>在"Steam ID"一栏找到 17 位数字（以 7656 开头）</li>
+          <li>⚠️ 确保你的 Steam 个人资料设置为<strong>公开</strong>（Steam 客户端 → 个人资料 → 编辑个人资料 → 隐私设置 → 公开）</li>
+        </ol>
+      </details>
+      <div id="steamFetchStatus" style="font-size:17px;color:var(--text-muted);margin-top:8px;display:none;"></div>
+    </div>
+
     <div style="margin-bottom:12px;">
-      <strong style="font-size:19px;color:var(--text-primary);">📋 导入成就数据</strong>
-      <p style="font-size:19px;color:var(--text-muted);margin-top:6px;">选择 JSON 文件或粘贴内容，支持多种格式自动识别</p>
+      <strong style="font-size:19px;color:var(--text-primary);">📋 手动导入（文件或粘贴）</strong>
+      <p style="font-size:17px;color:var(--text-muted);margin-top:4px;">选择 JSON 文件或粘贴内容，支持多种格式自动识别</p>
     </div>
     <div class="file-drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
       <div class="icon">📂</div>
       <p style="font-size:21px;">点击选择文件，或将文件拖拽到此处</p>
-      <p style="font-size:19px;margin-top:6px;">支持 .json 文件</p>
+      <p style="font-size:17px;margin-top:6px;">支持 .json 文件</p>
     </div>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileImport(event)">
     <div class="form-group" style="margin-top:12px;">
       <label style="font-size:17px;">粘贴 JSON 内容：</label>
-      <textarea id="jsonPaste" rows="6" style="font-family:var(--font-mono);font-size:19px;"
+      <textarea id="jsonPaste" rows="6" style="font-family:var(--font-mono);font-size:17px;"
         placeholder="粘贴 Steam API 返回的 JSON 数据，例如：&#10;{&quot;playerstats&quot;:{&quot;achievements&quot;:[{&quot;apiname&quot;:&quot;1&quot;,&quot;achieved&quot;:1},{&quot;apiname&quot;:&quot;2&quot;,&quot;achieved&quot;:0}]}}"></textarea>
     </div>
-    <div style="font-size:21px;color:var(--text-muted);margin-bottom:12px;">
+    <div style="font-size:17px;color:var(--text-muted);margin-bottom:12px;">
       支持格式：Steam Web API (playerstats.achievements)、成就对象数组、纯字符串数组。
       匹配规则：优先匹配 Steam API 名称，再匹配中文/英文成就名。
     </div>
@@ -1475,6 +1504,140 @@ function handleFileImport(event) {
     processJsonImport();
   };
   reader.readAsText(file);
+}
+
+// ============================================================
+// ONE-CLICK STEAM IMPORT — public XML endpoint, no API key needed
+// ============================================================
+function extractSteamId(input) {
+  if (!input) return null;
+  // Already a 17-digit Steam64 ID
+  const match64 = input.match(/\b(7656\d{13})\b/);
+  if (match64) return match64[1];
+  // Profile URL: steamcommunity.com/profiles/7656...
+  const matchProfile = input.match(/steamcommunity\.com\/profiles\/(\d{17})/);
+  if (matchProfile) return matchProfile[1];
+  // Custom URL: steamcommunity.com/id/... — needs XML resolution, not supported
+  return null;
+}
+
+async function fetchSteamAchievements() {
+  const input = document.getElementById('steamIdInput').value.trim();
+  const statusEl = document.getElementById('steamFetchStatus');
+  const btn = document.getElementById('btnSteamFetch');
+
+  const steamId = extractSteamId(input);
+  if (!steamId) {
+    statusEl.style.display = 'block';
+    statusEl.style.color = '#e74c3c';
+    statusEl.textContent = '❌ 请输入有效的 Steam64 ID（17位数字）或 https://steamcommunity.com/profiles/... 链接';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ 获取中...';
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--text-muted)';
+  statusEl.textContent = '正在从 Steam 拉取成就数据...';
+
+  const xmlUrl = `https://steamcommunity.com/profiles/${steamId}/stats/250900/?xml=1`;
+  const corsProxies = [
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    (url) => url  // direct fetch as last resort (works with browser extensions / VPN)
+  ];
+
+  let xmlText = null;
+  for (const proxyFn of corsProxies) {
+    try {
+      const proxyUrl = proxyFn(xmlUrl);
+      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) });
+      if (resp.ok) {
+        xmlText = await resp.text();
+        if (xmlText && xmlText.includes('<playerstats>')) break;
+        xmlText = null;
+      }
+    } catch (e) {
+      continue;
+    }
+  }
+
+  if (!xmlText) {
+    statusEl.style.color = '#e74c3c';
+    statusEl.innerHTML = `❌ 无法连接到 Steam。请尝试：<br>1. 开启加速器/VPN 后重试<br>2. 使用右侧「手动导入」方式：运行 <code style="background:var(--bg-primary);padding:2px 6px;border-radius:4px;">node fetch_steam.js ${steamId} &lt;API_KEY&gt;</code> 生成 JSON 文件导入`;
+    btn.disabled = false;
+    btn.textContent = '🔍 获取成就';
+    return;
+  }
+
+  // Parse XML
+  const achievements = parseSteamXml(xmlText);
+  if (!achievements || achievements.length === 0) {
+    statusEl.style.color = '#e74c3c';
+    statusEl.textContent = '❌ 解析成就数据失败，请确认 Steam 个人资料为公开状态';
+    btn.disabled = false;
+    btn.textContent = '🔍 获取成就';
+    return;
+  }
+
+  // Import
+  const beforeCount = unlockedSet.size;
+  let newCount = 0;
+  let matchedCount = 0;
+  const unmatched = [];
+  achievements.forEach(item => {
+    const key = String(item.key || '').toLowerCase();
+    const ach = ACHIEVEMENTS.find(a =>
+      String(a.api) === item.key ||
+      (a.nameEn && a.nameEn.toLowerCase() === key) ||
+      a.name.toLowerCase() === key
+    );
+    if (ach) {
+      if (!unlockedSet.has(ach.id)) newCount++;
+      unlockedSet.add(ach.id);
+      matchedCount++;
+    } else {
+      unmatched.push(item.key);
+    }
+  });
+
+  saves[currentSlot].unlocked = Array.from(unlockedSet);
+  saveSaves();
+  renderAll();
+  updateStats();
+
+  statusEl.style.color = '#27ae60';
+  let msg = `✅ 成功！匹配 ${matchedCount}，新增 ${newCount} 个成就（${beforeCount} → ${unlockedSet.size}）`;
+  if (unmatched.length > 0) msg += `，${unmatched.length} 个未匹配`;
+  statusEl.textContent = msg;
+  btn.disabled = false;
+  btn.textContent = '🔍 获取成就';
+  showToast(msg);
+}
+
+function parseSteamXml(xml) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'text/xml');
+  const errorNode = doc.querySelector('parsererror');
+  if (errorNode) return null;
+
+  const achievements = [];
+  const nodes = doc.querySelectorAll('achievement');
+  nodes.forEach(node => {
+    const apiname = node.querySelector('apiname')?.textContent || '';
+    const achieved = node.querySelector('achieved')?.textContent || '';
+    const name = node.querySelector('name')?.textContent || '';
+    if (apiname) {
+      achievements.push({
+        key: apiname,
+        achieved: achieved === '1' ? 1 : 0,
+        name: name
+      });
+    }
+  });
+
+  // Only return unlocked ones
+  return achievements.filter(a => a.achieved === 1);
 }
 
 function processJsonImport() {
