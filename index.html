@@ -711,9 +711,9 @@ body {
 
     <!-- Method 1: One-click Steam import -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
-      <strong style="font-size:19px;color:var(--gold);">🔗 一键导入（推荐）</strong>
+      <strong style="font-size:19px;color:var(--text-secondary);">🔗 一键导入（需开加速器）</strong>
       <p style="font-size:17px;color:var(--text-muted);margin:6px 0 10px;">
-        输入你的 Steam64 ID 或个人资料链接，自动拉取成就数据。无需 API Key，无需下载文件。
+        输入 Steam64 ID 自动拉取。⚠️ 该方式依赖境外代理，<b>国内裸连通常失败</b>，建议优先用下方「自动同步」。
       </p>
       <div style="display:flex;gap:8px;align-items:center;">
         <input type="text" id="steamIdInput"
@@ -732,6 +732,26 @@ body {
         </ol>
       </details>
       <div id="steamFetchStatus" style="font-size:17px;color:var(--text-muted);margin-top:8px;display:none;"></div>
+    </div>
+
+    <!-- Method: GitHub auto sync (works in China without VPN) -->
+    <div style="background:var(--bg-card);border:1px solid var(--gold);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+      <strong style="font-size:19px;color:var(--gold);">🚀 自动同步（国内免翻墙 · 推荐）</strong>
+      <p style="font-size:17px;color:var(--text-muted);margin:6px 0 10px;">
+        由 GitHub 每天自动从 Steam 抓取你的成就，点一下即可同步。无需加速器，国内直连可用。
+      </p>
+      <button class="btn accent" onclick="syncFromGithub()" id="btnGithubSync"
+        style="font-size:17px;padding:10px 20px;">🔄 立即同步成就</button>
+      <div id="githubSyncStatus" style="font-size:17px;margin-top:8px;display:none;"></div>
+      <details style="margin-top:10px;">
+        <summary style="font-size:17px;color:var(--text-muted);cursor:pointer;">⚙️ 原理 & 如何立即刷新</summary>
+        <p style="font-size:17px;color:var(--text-secondary);margin:8px 0 0;line-height:1.7;">
+          GitHub 服务器每天定时访问你的 Steam 公开资料，把已解锁成就写入数据文件，本站直接读取，你的 Steam ID 已内置。
+          想立刻刷新（不等每天自动）：打开
+          <a href="https://github.com/box-i/isaac-achievements/actions/workflows/sync-steam.yml" target="_blank" style="color:#e8a840;">GitHub Actions 页面</a>
+          → 选「Sync Steam Achievements」→ 点 <b>Run workflow</b>，约 30 秒后回这里点同步。
+        </p>
+      </details>
     </div>
 
     <div style="margin-bottom:12px;">
@@ -1640,6 +1660,47 @@ function parseSteamXml(xml) {
 
   // Only return unlocked ones
   return achievements.filter(a => a.achieved === 1);
+}
+
+// 从 GitHub 仓库读取自动同步生成的 unlocked.json（走 github.io 同源，国内免翻墙）
+async function syncFromGithub() {
+  const btn = document.getElementById('btnGithubSync');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 同步中...'; }
+  try {
+    const resp = await fetch('unlocked.json?v=' + Date.now(), { cache: 'no-cache' });
+    if (!resp.ok) throw new Error('数据文件尚未生成（HTTP ' + resp.status + '）');
+    const data = await resp.json();
+    const apinames = data.unlockedApinames || [];
+    if (!apinames.length) throw new Error('数据为空');
+
+    const beforeCount = unlockedSet.size;
+    let newCount = 0, matchedCount = 0;
+    const unmatched = [];
+    apinames.forEach(api => {
+      const ach = ACHIEVEMENTS.find(a => String(a.api) === api);
+      if (ach) {
+        if (!unlockedSet.has(ach.id)) newCount++;
+        unlockedSet.add(ach.id);
+        matchedCount++;
+      } else { unmatched.push(api); }
+    });
+    saves[currentSlot].unlocked = Array.from(unlockedSet);
+    saveSaves();
+    renderAll();
+    updateStats();
+
+    let msg = `✅ 同步 ${matchedCount} 个成就，新增 ${newCount} 个（${beforeCount} → ${unlockedSet.size}）`;
+    if (data.updatedAt) {
+      msg += `。数据抓取于 ${new Date(data.updatedAt).toLocaleString('zh-CN', { hour12: false })}`;
+    }
+    if (unmatched.length) msg += `，${unmatched.length} 个未匹配`;
+    showToast(msg);
+    closeModal('importModal');
+  } catch (e) {
+    showToast('❌ 同步失败：' + e.message + '。请先去 GitHub Actions 运行一次「Sync Steam Achievements」');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 立即同步成就'; }
+  }
 }
 
 function processJsonImport() {
