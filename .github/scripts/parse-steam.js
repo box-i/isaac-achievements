@@ -1,12 +1,10 @@
 // 抓取 Steam 成就 XML 并解析出已解锁成就的 apiname 列表
 // 用法: node parse-steam.js [input.xml] [output.json]
-// 若 input.xml 缺失或不含成就数据，脚本会用带浏览器 UA 的 fetch 自行抓取
 const fs = require('fs');
 
 const STEAM_ID = '76561199040448818';
 const APP_ID = '250900';
 const STEAM_URL = `https://steamcommunity.com/profiles/${STEAM_ID}/stats/${APP_ID}/?xml=1`;
-// Steam 会拒绝 curl 默认 UA，必须伪装成浏览器
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
 async function fetchXml() {
@@ -17,49 +15,50 @@ async function fetchXml() {
   return text;
 }
 
+// 去除 CDATA 包裹与首尾空白
+const strip = (s) => (s || '').replace(/^<!\[CDATA\[([\s\S]*?)\]\]>$/, '$1').replace(/^[\s]*|[\s]*$/g, '');
+
 function parseXml(xml) {
   const unlocked = [];
 
-  // Steam XML 成就节点为自闭合标签，属性形式（closed/apiname 顺序不固定）：
-  //   <achievement closed="1" apiname="..." name="..." />
-  const tagRe = /<achievement\b([^>]*?)\/?>/g;
+  // 形式1：自闭合属性 <achievement closed="1" apiname="X" ... />
+  const selfRe = /<achievement\b([^>]*?)\/?>/gi;
   let m;
-  while ((m = tagRe.exec(xml)) !== null) {
+  while ((m = selfRe.exec(xml)) !== null) {
     const attrs = m[1];
-    const closedMatch = attrs.match(/closed\s*=\s*"(\d+)"/);
-    const apinameMatch = attrs.match(/apiname\s*=\s*"([^"]+)"/);
-    if (closedMatch && closedMatch[1] === '1' && apinameMatch) {
-      unlocked.push(apinameMatch[1]);
+    const closedM = attrs.match(/closed\s*=\s*"([^"]*)"/i);
+    const apiM = attrs.match(/apiname\s*=\s*"([^"]*)"/i);
+    if (closedM && strip(closedM[1]) === '1' && apiM && strip(apiM[1])) {
+      unlocked.push(strip(apiM[1]));
     }
   }
 
-  // 兜底：少数情况是子元素形式
+  // 形式2：子元素 <achievement>...<apiname><![CDATA[X]]></apiname>...<closed>1</closed>...</achievement>
   if (unlocked.length === 0) {
-    const blockRe = /<achievement>([\s\S]*?)<\/achievement>/g;
+    const blockRe = /<achievement\b[^>]*>([\s\S]*?)<\/achievement>/gi;
     let b;
     while ((b = blockRe.exec(xml)) !== null) {
       const inner = b[1];
-      const closedMatch = inner.match(/<closed>\s*(\d+)\s*<\/closed>/);
-      const apinameMatch = inner.match(/<apiname>\s*([^<]+)\s*<\/apiname>/);
-      if (closedMatch && closedMatch[1] === '1' && apinameMatch) {
-        unlocked.push(apinameMatch[1].trim());
-      }
+      const pick = (tag) => {
+        const rm = inner.match(new RegExp('<' + tag + '>([\\s\\S]*?)</' + tag + '>', 'i'));
+        return rm ? strip(rm[1]) : null;
+      };
+      const closed = pick('closed');
+      const apiname = pick('apiname');
+      if (closed === '1' && apiname) unlocked.push(apiname);
     }
   }
+
   return unlocked;
 }
 
 (async () => {
   let xml = '';
-
-  // 优先用 curl 预先抓取的文件（workflow Fetch step 产出）
   const inputPath = process.argv[2];
   if (inputPath && fs.existsSync(inputPath)) {
     xml = fs.readFileSync(inputPath, 'utf-8');
     console.log(`Read ${xml.length} bytes from ${inputPath}`);
   }
-
-  // curl 抓的内容若无效（空或不含 achievement），用带浏览器 UA 的 fetch 重抓
   if (!xml || !/<achievement/i.test(xml)) {
     console.log('Input missing achievements, re-fetching with browser UA...');
     xml = await fetchXml();
@@ -76,13 +75,12 @@ function parseXml(xml) {
     updatedAt: new Date().toISOString()
   };
 
-  // 诊断：解析为 0 时记录原始 XML 摘要，便于排查（Steam 反爬 / 资料未公开等）
   if (unlocked.length === 0) {
+    const idx = xml.search(/<achievement/i);
     out.debug = {
       xmlLength: xml.length,
       achievementTagCount: (xml.match(/<achievement/gi) || []).length,
-      hasPlayerstats: /<playerstats/i.test(xml),
-      xmlHead: xml.substring(0, 800)
+      firstAchievementRaw: idx >= 0 ? xml.substring(idx, idx + 600) : '(none)'
     };
   }
 
