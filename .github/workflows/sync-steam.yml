@@ -1,0 +1,35 @@
+  name: Sync Steam Achievements
+
+  on:
+    workflow_dispatch:
+    schedule:
+      - cron: '17 6 * * *'
+
+  permissions:
+    contents: write
+
+  jobs:
+    sync:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Fetch Steam achievements XML
+          run: |
+            curl -sL --fail "https://steamcommunity.com/profiles/76561199040448818/stats/250900/?xml=1" -o steam.xml
+            echo "Fetched $(wc -c < steam.xml) bytes"
+
+        - name: Parse to unlocked.json
+          run: node .github/scripts/parse-steam.js steam.xml unlocked.json
+
+        - name: Commit unlocked.json
+          run: |
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add unlocked.json
+            if git diff --staged --quiet; then
+              echo "No changes since last sync."
+            else
+              git commit -m "chore: sync steam achievements [skip ci]"
+              git push
+            fi
