@@ -1523,7 +1523,9 @@ function processJsonImport() {
     }
 
     // Multi-field matching: try api (numeric), nameEn (English), name, and case-insensitive
+    const beforeCount = unlockedSet.size;
     let matchedCount = 0;
+    let newCount = 0;
     const unmatched = [];
     imported.forEach(item => {
       const key = String(item.key || '');
@@ -1537,6 +1539,7 @@ function processJsonImport() {
         a.name.toLowerCase() === keyLower            // Chinese name match
       );
       if (ach) {
+        if (!unlockedSet.has(ach.id)) newCount++;
         unlockedSet.add(ach.id);
         matchedCount++;
       } else {
@@ -1550,7 +1553,13 @@ function processJsonImport() {
     updateStats();
     closeModal('importModal');
 
-    let msg = `✅ 成功导入 ${matchedCount} 个成就！`;
+    const afterCount = unlockedSet.size;
+    let msg = `✅ 匹配 ${matchedCount} 个成就`;
+    if (newCount > 0) {
+      msg += `，新增 ${newCount} 个（${beforeCount} → ${afterCount}）`;
+    } else if (matchedCount > 0) {
+      msg += `，无新增（已解锁的 ${beforeCount} 个都在文件中）`;
+    }
     if (unmatched.length > 0 && unmatched.length <= 5) {
       msg += `\n未匹配: ${unmatched.join(', ')}`;
     } else if (unmatched.length > 5) {
