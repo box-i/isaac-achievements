@@ -747,10 +747,10 @@ body {
     <div class="form-group" style="margin-top:12px;">
       <label style="font-size:17px;">粘贴 JSON 内容：</label>
       <textarea id="jsonPaste" rows="6" style="font-family:var(--font-mono);font-size:17px;"
-        placeholder="粘贴 Steam API 返回的 JSON 数据，例如：&#10;{&quot;playerstats&quot;:{&quot;achievements&quot;:[{&quot;apiname&quot;:&quot;1&quot;,&quot;achieved&quot;:1},{&quot;apiname&quot;:&quot;2&quot;,&quot;achieved&quot;:0}]}}"></textarea>
+        placeholder="粘贴 JSON 或 XML 数据。&#10;XML：在浏览器打开 steamcommunity.com/profiles/你的ID/stats/250900/?xml=1，全选复制粘贴&#10;JSON：运行 node fetch_steam.js 生成的文件内容"></textarea>
     </div>
     <div style="font-size:17px;color:var(--text-muted);margin-bottom:12px;">
-      支持格式：Steam Web API (playerstats.achievements)、成就对象数组、纯字符串数组。
+      支持格式：JSON（Steam Web API / 数组）或 XML（Steam 公开成就页面 ?xml=1）。
       匹配规则：优先匹配 Steam API 名称，再匹配中文/英文成就名。
     </div>
     <div class="modal-actions">
@@ -1564,7 +1564,9 @@ async function fetchSteamAchievements() {
 
   if (!xmlText) {
     statusEl.style.color = '#e74c3c';
-    statusEl.innerHTML = `❌ 无法连接到 Steam。请尝试：<br>1. 开启加速器/VPN 后重试<br>2. 使用右侧「手动导入」方式：运行 <code style="background:var(--bg-primary);padding:2px 6px;border-radius:4px;">node fetch_steam.js ${steamId} &lt;API_KEY&gt;</code> 生成 JSON 文件导入`;
+    statusEl.innerHTML = `❌ 自动拉取失败（网络限制）。请改用下方「📋 手动导入」：<br>
+      <b>方式 A</b>：浏览器打开 <a href="https://steamcommunity.com/profiles/${steamId}/stats/250900/?xml=1" target="_blank" style="color:#e8a840;">这个链接</a>（需开加速器），全选复制 XML 内容，粘贴到下方文本框。<br>
+      <b>方式 B</b>：运行 <code style="background:var(--bg-primary);padding:2px 6px;border-radius:4px;">node fetch_steam.js ${steamId} &lt;API_KEY&gt;</code> 生成 JSON 文件后拖拽导入。`;
     btn.disabled = false;
     btn.textContent = '🔍 获取成就';
     return;
@@ -1642,7 +1644,42 @@ function parseSteamXml(xml) {
 
 function processJsonImport() {
   const raw = document.getElementById('jsonPaste').value.trim();
-  if (!raw) { showToast('⚠️ 请先粘贴JSON内容或选择文件'); return; }
+  if (!raw) { showToast('⚠️ 请先粘贴内容或选择文件'); return; }
+
+  // Detect XML input (from Steam public endpoint ?xml=1)
+  if (raw.startsWith('<?xml') || raw.startsWith('<playerstats>') || raw.startsWith('<playerstats ')) {
+    const achievements = parseSteamXml(raw);
+    if (!achievements || achievements.length === 0) {
+      showToast('⚠️ 未能解析 XML，请确认内容是 Steam 成就页面（?xml=1）的完整 XML');
+      return;
+    }
+    const beforeCount = unlockedSet.size;
+    let newCount = 0, matchedCount = 0;
+    const unmatched = [];
+    achievements.forEach(item => {
+      const key = String(item.key || '').toLowerCase();
+      const ach = ACHIEVEMENTS.find(a =>
+        String(a.api) === item.key ||
+        (a.nameEn && a.nameEn.toLowerCase() === key) ||
+        a.name.toLowerCase() === key
+      );
+      if (ach) {
+        if (!unlockedSet.has(ach.id)) newCount++;
+        unlockedSet.add(ach.id);
+        matchedCount++;
+      } else { unmatched.push(item.key); }
+    });
+    saves[currentSlot].unlocked = Array.from(unlockedSet);
+    saveSaves();
+    renderAll();
+    updateStats();
+    closeModal('importModal');
+    let msg = `✅ 从 XML 匹配 ${matchedCount} 个，新增 ${newCount} 个（${beforeCount} → ${unlockedSet.size}）`;
+    if (unmatched.length > 0) msg += `，${unmatched.length} 个未匹配`;
+    showToast(msg);
+    return;
+  }
+
   try {
     const data = JSON.parse(raw);
     let imported = [];
