@@ -3,5 +3,11 @@
   "appId": "250900",
   "unlockedApinames": [],
   "count": 0,
-  "updatedAt": "2026-08-10T08:31:01.968Z"
+  "updatedAt": "2026-08-10T08:40:12.679Z",
+  "debug": {
+    "xmlLength": 327769,
+    "achievementTagCount": 642,
+    "hasPlayerstats": true,
+    "xmlHead": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><playerstats>\n\t<privacyState>public</privacyState>\n\t<visibilityState>3</visibilityState>\n\t<game>\n\t\t<gameFriendlyName><![CDATA[250900]]></gameFriendlyName>\n\t\t<gameName><![CDATA[The Binding of Isaac: Rebirth]]></gameName>\n\t\t<gameLink><![CDATA[https://steamcommunity.com/app/250900]]></gameLink>\n\t\t<gameIcon><![CDATA[https://shared.fastly.steamstatic.com/community_assets/images/apps/250900/16d46c8630499bfc54d20745ac90786a302cd643.jpg]]></gameIcon>\n\t\t<gameLogo><![CDATA[https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/250900/capsule_184x69.jpg?t=1731977365]]></gameLogo>\n\t\t<gameLogoSmall><![CDATA[https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/250900/capsule_184x69.jpg?t=1731977365]]></gameLogoSmall>\n\t</gam"
+  }
 }
