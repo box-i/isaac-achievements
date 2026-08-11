@@ -709,49 +709,29 @@ body {
     <button class="close-btn" onclick="closeModal('importModal')">✕</button>
     <h2 style="font-size:25px;">📥 导入成就数据</h2>
 
-    <!-- Method 1: One-click Steam import -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
-      <strong style="font-size:19px;color:var(--text-secondary);">🔗 一键导入（需开加速器）</strong>
+    <!-- Method 1: One-click Steam import (works in China without VPN) -->
+    <div style="background:var(--bg-card);border:1px solid var(--gold);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+      <strong style="font-size:19px;color:var(--gold);">🚀 一键导入（国内免翻墙 · 推荐）</strong>
       <p style="font-size:17px;color:var(--text-muted);margin:6px 0 10px;">
-        输入 Steam64 ID 自动拉取。⚠️ 该方式依赖境外代理，<b>国内裸连通常失败</b>，建议优先用下方「自动同步」。
+        输入你的 Steam ID，自动拉取<b>你自己的</b>成就。经国内服务器中转 Steam 官方接口，无需加速器，约 2~3 秒。
       </p>
       <div style="display:flex;gap:8px;align-items:center;">
         <input type="text" id="steamIdInput"
-          placeholder="Steam64 ID（17位数字）或 https://steamcommunity.com/profiles/..."
+          placeholder="Steam64 ID（17位数字）或 自定义ID 或 个人主页链接"
           style="flex:1;background:var(--bg-primary);border:1px solid var(--border);color:var(--text-primary);padding:10px 14px;font-family:var(--font-main);font-size:17px;border-radius:var(--radius);" />
         <button class="btn accent" onclick="fetchSteamAchievements()" id="btnSteamFetch"
-          style="font-size:17px;padding:10px 20px;white-space:nowrap;">🔍 获取成就</button>
+          style="font-size:17px;padding:10px 20px;white-space:nowrap;">🔍 获取我的成就</button>
       </div>
       <details style="margin-top:10px;">
-        <summary style="font-size:17px;color:var(--text-muted);cursor:pointer;">💡 怎么找到我的 Steam64 ID？</summary>
+        <summary style="font-size:17px;color:var(--text-muted);cursor:pointer;">💡 怎么找到我的 Steam ID？</summary>
         <ol style="font-size:17px;color:var(--text-secondary);margin:8px 0 0 20px;line-height:1.8;">
-          <li>打开 Steam 客户端</li>
-          <li>点击右上角头像 → <strong>账户明细</strong></li>
-          <li>在"Steam ID"一栏找到 17 位数字（以 7656 开头）</li>
-          <li>⚠️ 确保你的 Steam 个人资料设置为<strong>公开</strong>（Steam 客户端 → 个人资料 → 编辑个人资料 → 隐私设置 → 公开）</li>
+          <li>打开 Steam 客户端 → 右上角头像 → <strong>账户明细</strong></li>
+          <li>找到 17 位数字的 Steam ID（以 7656 开头）</li>
+          <li>不知道数字 ID？填你的<b>自定义ID</b>（个人主页网址 <code>/id/</code> 后面那段）也可以</li>
+          <li>⚠️ 必须把 Steam <strong>个人资料</strong>与<strong>游戏详情</strong>设为公开，否则读取不到</li>
         </ol>
       </details>
       <div id="steamFetchStatus" style="font-size:17px;color:var(--text-muted);margin-top:8px;display:none;"></div>
-    </div>
-
-    <!-- Method: GitHub auto sync (works in China without VPN) -->
-    <div style="background:var(--bg-card);border:1px solid var(--gold);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
-      <strong style="font-size:19px;color:var(--gold);">🚀 自动同步（国内免翻墙 · 推荐）</strong>
-      <p style="font-size:17px;color:var(--text-muted);margin:6px 0 10px;">
-        由 GitHub 每天自动从 Steam 抓取你的成就，点一下即可同步。无需加速器，国内直连可用。
-      </p>
-      <button class="btn accent" onclick="syncFromGithub()" id="btnGithubSync"
-        style="font-size:17px;padding:10px 20px;">🔄 立即同步成就</button>
-      <div id="githubSyncStatus" style="font-size:17px;margin-top:8px;display:none;"></div>
-      <details style="margin-top:10px;">
-        <summary style="font-size:17px;color:var(--text-muted);cursor:pointer;">⚙️ 原理 & 如何立即刷新</summary>
-        <p style="font-size:17px;color:var(--text-secondary);margin:8px 0 0;line-height:1.7;">
-          GitHub 服务器每天定时访问你的 Steam 公开资料，把已解锁成就写入数据文件，本站直接读取，你的 Steam ID 已内置。
-          想立刻刷新（不等每天自动）：打开
-          <a href="https://github.com/box-i/isaac-achievements/actions/workflows/sync-steam.yml" target="_blank" style="color:#e8a840;">GitHub Actions 页面</a>
-          → 选「Sync Steam Achievements」→ 点 <b>Run workflow</b>，约 30 秒后回这里点同步。
-        </p>
-      </details>
     </div>
 
     <div style="margin-bottom:12px;">
@@ -1546,80 +1526,72 @@ async function fetchSteamAchievements() {
   const statusEl = document.getElementById('steamFetchStatus');
   const btn = document.getElementById('btnSteamFetch');
 
-  const steamId = extractSteamId(input);
-  if (!steamId) {
+  if (!input) {
     statusEl.style.display = 'block';
     statusEl.style.color = '#e74c3c';
-    statusEl.textContent = '❌ 请输入有效的 Steam64 ID（17位数字）或 https://steamcommunity.com/profiles/... 链接';
+    statusEl.textContent = '❌ 请输入 Steam64 ID（17位数字）、自定义ID 或个人主页链接';
     return;
   }
+
+  // 从主页链接提取 ID（支持 /profiles/数字 和 /id/自定义名）
+  let id = input;
+  const m = input.match(/steamcommunity\.com\/(?:profiles|id)\/([^/?#]+)/);
+  if (m) id = decodeURIComponent(m[1]);
 
   btn.disabled = true;
   btn.textContent = '⏳ 获取中...';
   statusEl.style.display = 'block';
   statusEl.style.color = 'var(--text-muted)';
-  statusEl.textContent = '正在从 Steam 拉取成就数据...';
+  statusEl.textContent = '正在通过国内服务器拉取你的成就数据...';
 
-  const xmlUrl = `https://steamcommunity.com/profiles/${steamId}/stats/250900/?xml=1`;
-  const corsProxies = [
-    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    (url) => url  // direct fetch as last resort (works with browser extensions / VPN)
-  ];
+  // 走腾讯云函数中转 → Steam 官方 API（国内免翻墙）
+  const apiUrl = 'https://1466156272-bqqkmcb2v1.ap-guangzhou.tencentscf.com/?steamid=' + encodeURIComponent(id);
 
-  let xmlText = null;
-  for (const proxyFn of corsProxies) {
-    try {
-      const proxyUrl = proxyFn(xmlUrl);
-      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) });
-      if (resp.ok) {
-        xmlText = await resp.text();
-        if (xmlText && xmlText.includes('<playerstats>')) break;
-        xmlText = null;
-      }
-    } catch (e) {
-      continue;
-    }
-  }
-
-  if (!xmlText) {
+  let data;
+  try {
+    const resp = await fetch(apiUrl, { signal: AbortSignal.timeout(20000) });
+    data = await resp.json();
+  } catch (e) {
     statusEl.style.color = '#e74c3c';
-    statusEl.innerHTML = `❌ 自动拉取失败（网络限制）。请改用下方「📋 手动导入」：<br>
-      <b>方式 A</b>：浏览器打开 <a href="https://steamcommunity.com/profiles/${steamId}/stats/250900/?xml=1" target="_blank" style="color:#e8a840;">这个链接</a>（需开加速器），全选复制 XML 内容，粘贴到下方文本框。<br>
-      <b>方式 B</b>：运行 <code style="background:var(--bg-primary);padding:2px 6px;border-radius:4px;">node fetch_steam.js ${steamId} &lt;API_KEY&gt;</code> 生成 JSON 文件后拖拽导入。`;
+    statusEl.textContent = '❌ 拉取失败：' + (e.message || e) + '，请稍后重试';
     btn.disabled = false;
-    btn.textContent = '🔍 获取成就';
+    btn.textContent = '🔍 获取我的成就';
     return;
   }
 
-  // Parse XML
-  const achievements = parseSteamXml(xmlText);
-  if (!achievements || achievements.length === 0) {
+  // Steam API 返回校验
+  if (!data || !data.playerstats) {
     statusEl.style.color = '#e74c3c';
-    statusEl.textContent = '❌ 解析成就数据失败，请确认 Steam 个人资料为公开状态';
+    statusEl.textContent = '❌ 返回数据异常，请确认 ID 正确';
     btn.disabled = false;
-    btn.textContent = '🔍 获取成就';
+    btn.textContent = '🔍 获取我的成就';
+    return;
+  }
+  if (data.playerstats.success === false) {
+    statusEl.style.color = '#e74c3c';
+    statusEl.textContent = '❌ ' + (data.playerstats.error || '获取失败') + '。请确认 Steam 个人资料与游戏详情已设为公开';
+    btn.disabled = false;
+    btn.textContent = '🔍 获取我的成就';
     return;
   }
 
-  // Import
+  const achievements = data.playerstats.achievements || [];
+
+  // Import：只取 achieved=1 的，按 apiname 匹配
   const beforeCount = unlockedSet.size;
   let newCount = 0;
   let matchedCount = 0;
   const unmatched = [];
   achievements.forEach(item => {
-    const key = String(item.key || '').toLowerCase();
-    const ach = ACHIEVEMENTS.find(a =>
-      String(a.api) === item.key ||
-      (a.nameEn && a.nameEn.toLowerCase() === key) ||
-      a.name.toLowerCase() === key
-    );
+    if (item.achieved !== 1) return;
+    const key = String(item.apiname || '');
+    const ach = ACHIEVEMENTS.find(a => String(a.api) === key);
     if (ach) {
       if (!unlockedSet.has(ach.id)) newCount++;
       unlockedSet.add(ach.id);
       matchedCount++;
     } else {
-      unmatched.push(item.key);
+      unmatched.push(key);
     }
   });
 
@@ -1633,7 +1605,7 @@ async function fetchSteamAchievements() {
   if (unmatched.length > 0) msg += `，${unmatched.length} 个未匹配`;
   statusEl.textContent = msg;
   btn.disabled = false;
-  btn.textContent = '🔍 获取成就';
+  btn.textContent = '🔍 获取我的成就';
   showToast(msg);
 }
 
