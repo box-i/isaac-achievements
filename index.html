@@ -641,13 +641,9 @@ var _hmt = _hmt || [];
     </div>
   </div>
   <div class="header-right">
-    <span class="save-slot-badge" id="currentSlotBadge" onclick="openSaveSlots()" title="点击切换存档">
-      📂 存档 1
-    </span>
-    <button class="btn" onclick="openSaveSlots()">💾 存档管理</button>
     <button class="btn" onclick="openImportModal()">📥 导入存档</button>
-    <button class="btn accent" onclick="openGuideModal()">📖 新人指南</button>
-    <button class="btn" onclick="openDonateModal()">☕ 打赏</button>
+    <button class="btn" onclick="openGuideModal()">📖 新人指南</button>
+    <button class="btn accent" onclick="openDonateModal()">☕ 打赏</button>
   </div>
 </header>
 
@@ -701,17 +697,6 @@ var _hmt = _hmt || [];
 
 <!-- ======================== MODALS ======================== -->
 
-<!-- Save Slot Modal -->
-<div class="modal-overlay" id="saveSlotModal" style="display:none">
-  <div class="modal">
-    <button class="close-btn" onclick="closeModal('saveSlotModal')">✕</button>
-    <h2>💾 存档管理</h2>
-    <p style="font-size:21px;color:var(--text-muted);margin-bottom:16px;">
-      支持最多 3 个存档位，每个存档独立记录成就解锁状态。点击存档名可重命名。
-    </p>
-    <div id="saveSlotList"></div>
-  </div>
-</div>
 
 <!-- Import Modal -->
 <div class="modal-overlay" id="importModal" style="display:none">
@@ -1190,21 +1175,7 @@ function saveSaves() {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify({ currentSlot }));
 }
 
-function updateSlotBadge() {
-  document.getElementById('currentSlotBadge').textContent =
-    `📂 ${saves[currentSlot]?.name || '存档 ' + (currentSlot + 1)}`;
-}
-
-function switchSlot(index) {
-  currentSlot = index;
-  unlockedSet = new Set(saves[currentSlot]?.unlocked || []);
-  saveSaves();
-  updateSlotBadge();
-  renderAll();
-  updateStats();
-  closeModal('saveSlotModal');
-  showToast(`已切换到「${saves[currentSlot].name}」`);
-}
+function updateSlotBadge() {}
 
 // ============================================================
 // RENDER
@@ -1433,28 +1404,6 @@ function showAchievementDetail(id) {
 }
 
 
-function openSaveSlots() {
-  const list = document.getElementById('saveSlotList');
-  list.innerHTML = saves.map((s, i) => {
-    const cnt = (s.unlocked || []).length;
-    const isActive = i === currentSlot;
-    return `<div style="display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:8px;background:var(--bg-card);border:1px solid ${isActive?'var(--accent)':'var(--border)'};border-radius:var(--radius);">
-      <span style="font-size:27px;">${isActive ? '📂' : '📁'}</span>
-      <div style="flex:1;">
-        <input type="text" value="${escapeHtml(s.name)}" onchange="renameSlot(${i}, this.value)"
-          style="background:transparent;border:none;color:var(--text-primary);font-family:var(--font-main);font-size:17px;width:100%;outline:none;" />
-        <div style="font-size:17px;color:var(--text-muted);">${cnt}/${ACHIEVEMENTS.length} 已解锁</div>
-      </div>
-      ${isActive ? '<span style="color:var(--accent-glow);font-size:17px;">当前</span>'
-        : `<button class="btn small" onclick="switchSlot(${i})">切换</button>`}
-    </div>`;
-  }).join('');
-  openModal('saveSlotModal');
-}
-
-function renameSlot(index, newName) {
-  if (newName.trim()) { saves[index].name = newName.trim(); saveSaves(); updateSlotBadge(); }
-}
 
 function escapeHtml(str) {
   const div = document.createElement('div');
