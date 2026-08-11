@@ -734,30 +734,6 @@ body {
       <div id="steamFetchStatus" style="font-size:17px;color:var(--text-muted);margin-top:8px;display:none;"></div>
     </div>
 
-    <div style="margin-bottom:12px;">
-      <strong style="font-size:19px;color:var(--text-primary);">📋 手动导入（文件或粘贴）</strong>
-      <p style="font-size:17px;color:var(--text-muted);margin-top:4px;">选择 JSON 文件或粘贴内容，支持多种格式自动识别</p>
-    </div>
-    <div class="file-drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-      <div class="icon">📂</div>
-      <p style="font-size:21px;">点击选择文件，或将文件拖拽到此处</p>
-      <p style="font-size:17px;margin-top:6px;">支持 .json 文件</p>
-    </div>
-    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileImport(event)">
-    <div class="form-group" style="margin-top:12px;">
-      <label style="font-size:17px;">粘贴 JSON 内容：</label>
-      <textarea id="jsonPaste" rows="6" style="font-family:var(--font-mono);font-size:17px;"
-        placeholder="粘贴 JSON 或 XML 数据。&#10;XML：在浏览器打开 steamcommunity.com/profiles/你的ID/stats/250900/?xml=1，全选复制粘贴&#10;JSON：运行 node fetch_steam.js 生成的文件内容"></textarea>
-    </div>
-    <div style="font-size:17px;color:var(--text-muted);margin-bottom:12px;">
-      支持格式：JSON（Steam Web API / 数组）或 XML（Steam 公开成就页面 ?xml=1）。
-      匹配规则：优先匹配 Steam API 名称，再匹配中文/英文成就名。
-    </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('importModal')" style="font-size:17px;padding:10px 20px;">取消</button>
-      <button class="btn" style="background:rgba(201,169,78,0.15);color:#c9a94e;font-size:17px;padding:10px 20px;" onclick="loadSampleImportData()">📋 填入示例</button>
-      <button class="btn accent" onclick="processJsonImport()" style="font-size:17px;padding:10px 20px;">解析并导入</button>
-    </div>
   </div>
 </div>
 
@@ -1456,8 +1432,6 @@ function escapeHtml(str) {
 
 // Import
 function openImportModal() {
-  document.getElementById('jsonPaste').value = '';
-  document.getElementById('fileInput').value = '';
   openModal('importModal');
 }
 
@@ -1607,6 +1581,7 @@ async function fetchSteamAchievements() {
   btn.disabled = false;
   btn.textContent = '🔍 获取我的成就';
   showToast(msg);
+  closeModal('importModal');
 }
 
 function parseSteamXml(xml) {
