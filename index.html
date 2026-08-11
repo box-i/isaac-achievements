@@ -613,6 +613,15 @@ body {
 .dlc-tag.afterbirth-plus { background: rgba(74,136,136,0.15); color: #5a9a8a; }
 .dlc-tag.repentance { background: rgba(139,58,170,0.2); color: #b07acc; }
 </style>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?a41723615280a2f45c95d599d2b1b0da";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
 </head>
 <body>
 
@@ -638,6 +647,7 @@ body {
     <button class="btn" onclick="openSaveSlots()">💾 存档管理</button>
     <button class="btn" onclick="openImportModal()">📥 导入存档</button>
     <button class="btn accent" onclick="openGuideModal()">📖 新人指南</button>
+    <button class="btn" onclick="openDonateModal()">☕ 打赏</button>
   </div>
 </header>
 
@@ -734,6 +744,28 @@ body {
       <div id="steamFetchStatus" style="font-size:17px;color:var(--text-muted);margin-top:8px;display:none;"></div>
     </div>
 
+  </div>
+</div>
+
+<!-- Donate Modal -->
+<div class="modal-overlay" id="donateModal" style="display:none">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('donateModal')">✕</button>
+    <h2 style="font-size:25px;">☕ 请作者喝杯咖啡</h2>
+    <p style="font-size:17px;color:var(--text-muted);margin-bottom:16px;line-height:1.7;">
+      如果这个网站对你有帮助，欢迎扫码请作者喝杯咖啡 ☕<br>
+      你的支持是我继续维护的动力，感谢！
+    </p>
+    <div style="display:flex;gap:28px;justify-content:center;flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <img src="images/donate-wechat.jpg" alt="微信收款码" style="width:200px;height:200px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-primary);">
+        <div style="margin-top:8px;font-size:17px;color:#0a8a28;">💚 微信</div>
+      </div>
+      <div style="text-align:center;">
+        <img src="images/donate-alipay.jpg" alt="支付宝收款码" style="width:200px;height:200px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-primary);">
+        <div style="margin-top:8px;font-size:17px;color:#1677ff;">💙 支付宝</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1433,6 +1465,10 @@ function escapeHtml(str) {
 // Import
 function openImportModal() {
   openModal('importModal');
+}
+
+function openDonateModal() {
+  openModal('donateModal');
 }
 
 function loadSampleImportData() {
