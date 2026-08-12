@@ -1380,6 +1380,28 @@ function linkifyWikiTerms(text) {
   });
 }
 
+// 奖励字段专用：奖励基本都是道具名，应整体可点击跳转 wiki。
+// - 道具型：按空白拆分，每个道具名整词链接到 /wiki/{道具名}（字典里有映射则用映射）
+// - 句子/挑战/描述型（“商店将会出售3个物品”“挑战#N”“X初始携带Y”、多个boss名粘连等）：
+//   退回字典链接，只链其中已知的词条
+function linkifyReward(text) {
+  if (!text) return text;
+  const tokens = text.trim().split(/\s+/); // \s 兼容普通空格与 nbsp
+  const norm = tokens.join(' ');
+  // 整句型：挑战/商店描述/难度/概率/纯CJK粘连多boss名 —— 退回字典链接（只链其中已知词条）
+  const singleLongCjk = tokens.length === 1 && [...tokens[0]].length > 8 && /^[一-鿿]+$/.test(tokens[0]);
+  const isSentence = /挑战#|将会出售|难度增加|概率/.test(norm) || singleLongCjk;
+  if (isSentence) return linkifyWikiTerms(text);
+  // 其余按空白拆分。含"初始携带"的混合片段（如"店主初始携带"）用字典链接；
+  // 纯道具名整词链接到 /wiki/{道具名}（字典有映射则用映射）
+  return tokens.map(tok => {
+    if (!tok) return tok;
+    if (/初始携带/.test(tok)) return linkifyWikiTerms(tok);
+    const page = Object.prototype.hasOwnProperty.call(_WIKI_TERMS, tok) ? _WIKI_TERMS[tok] : tok;
+    return `<a href="${_WIKI_BASE}${encodeURI(page)}" target="_blank" class="wiki-link" title="在 wiki 中查看「${tok}」">${tok}</a>`;
+  }).join(' ');
+}
+
 function showAchievementDetail(id) {
   const a = ACHIEVEMENTS.find(x => x.id === id);
   if (!a) return;
@@ -1387,7 +1409,7 @@ function showAchievementDetail(id) {
   const hasEn = a.nameEn && a.nameEn !== a.name;
   const titleHtml = hasEn ? `${a.name} <span style="font-size:19px;color:var(--text-muted);">(${a.nameEn})</span>` : a.name;
   const condHtml = a.unlockCond ? linkifyWikiTerms(a.unlockCond) : '<span class="detail-none">暂无数据</span>';
-  const rewardHtml = a.reward ? linkifyWikiTerms(a.reward) : '<span class="detail-none">暂无数据</span>';
+  const rewardHtml = a.reward ? linkifyReward(a.reward) : '<span class="detail-none">暂无数据</span>';
 
   const iconUrl = a.iconHash
     ? `https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/250900/${a.iconHash}.jpg`
