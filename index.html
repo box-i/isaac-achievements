@@ -1332,8 +1332,9 @@ function _track(cat, action, label, value) {
 }
 
 function setFilter(filter, el) {
+  const changed = filter !== currentFilter;
   currentFilter = filter;
-  _track('视图', '筛选', filter);
+  if (changed) _track('视图', '筛选', filter);
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   if (el) el.classList.add('active');
   renderAll();
@@ -1358,8 +1359,9 @@ function filterAchievements() {
 document.getElementById('tabNav').addEventListener('click', function(e) {
   const btn = e.target.closest('.tab-btn');
   if (!btn) return;
-  currentCat = btn.dataset.cat;
-  _track('分类', '切换', currentCat);
+  const newCat = btn.dataset.cat;
+  if (newCat !== currentCat) _track('分类', '切换', newCat);
+  currentCat = newCat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderAll();
