@@ -1320,16 +1320,38 @@ function toggleAchievement(id) {
   showToast(`${unlockedSet.has(id) ? '✅ 已解锁' : '🔒 已锁定'}: #${id} ${ach?.name || ''}`);
 }
 
+// 埋点上报：百度统计 _trackEvent；统计脚本未加载/被拦截时静默忽略，value 仅接受数字
+function _track(cat, action, label, value) {
+  try {
+    if (typeof _hmt === 'undefined' || !_hmt || !_hmt.push) return;
+    const evt = ['_trackEvent', cat, action];
+    if (label !== undefined && label !== null) evt.push(String(label));
+    if (value !== undefined && value !== null) evt.push(Number(value) || 0);
+    _hmt.push(evt);
+  } catch (e) {}
+}
+
 function setFilter(filter, el) {
   currentFilter = filter;
+  _track('视图', '筛选', filter);
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   if (el) el.classList.add('active');
   renderAll();
 }
 
+// 搜索埋点：输入停顿 1.2s 后再上报，避免每次按键都打点；只记长度≥2 的关键词并去重
+let _searchDebounce = null, _lastTrackedSearch = '';
 function filterAchievements() {
   searchQuery = document.getElementById('searchInput').value;
   renderAll();
+  const term = searchQuery.trim();
+  if (term.length < 2 || term === _lastTrackedSearch) return;
+  clearTimeout(_searchDebounce);
+  _searchDebounce = setTimeout(() => {
+    if (term === _lastTrackedSearch) return;
+    _lastTrackedSearch = term;
+    _track('搜索', '提交', term.slice(0, 20));
+  }, 1200);
 }
 
 // Tabs
@@ -1337,9 +1359,17 @@ document.getElementById('tabNav').addEventListener('click', function(e) {
   const btn = e.target.closest('.tab-btn');
   if (!btn) return;
   currentCat = btn.dataset.cat;
+  _track('分类', '切换', currentCat);
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderAll();
+});
+
+// wiki 链接点击埋点（链接由 innerHTML 动态生成，统一用事件委托捕获）
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('a.wiki-link');
+  if (!link) return;
+  _track('wiki', '点击', (link.textContent || '').trim().slice(0, 20));
 });
 
 // ============================================================
@@ -1418,6 +1448,7 @@ function linkifyReward(text) {
 function showAchievementDetail(id) {
   const a = ACHIEVEMENTS.find(x => x.id === id);
   if (!a) return;
+  _track('成就', '查看', String(id));
 
   const hasEn = a.nameEn && a.nameEn !== a.name;
   const titleHtml = hasEn ? `${a.name} <span style="font-size:19px;color:var(--text-muted);">(${a.nameEn})</span>` : a.name;
@@ -1464,6 +1495,7 @@ function escapeHtml(str) {
 
 // Import
 function openImportModal() {
+  _track('导入', '打开');
   openModal('importModal');
 }
 
@@ -1480,7 +1512,6 @@ const _FEEDBACK = {
 const _FEEDBACK_ISSUES = 'https://github.com/box-i/isaac-achievements/issues';
 
 function openFeedbackModal() {
-  try { _hmt.push(['_trackEvent', '反馈', '打开', '反馈弹窗']); } catch (e) {}
   openModal('feedbackModal');
   renderFeedbackBody();
 }
@@ -1583,6 +1614,11 @@ async function fetchSteamAchievements() {
     return;
   }
 
+  // 埋点：记录一次有效提交（只记输入类型，不记 Steam ID，避免采集个人信息）
+  const _inputType = /steamcommunity\.com\//.test(input) ? '主页链接'
+    : /^\d{17}$/.test(input) ? 'Steam64ID' : '自定义ID';
+  _track('导入', '提交', _inputType);
+
   // 从主页链接提取 ID（支持 /profiles/数字 和 /id/自定义名）
   let id = input;
   const m = input.match(/steamcommunity\.com\/(?:profiles|id)\/([^/?#]+)/);
@@ -1606,6 +1642,7 @@ async function fetchSteamAchievements() {
     statusEl.textContent = '❌ 拉取失败：' + (e.message || e) + '，请稍后重试';
     btn.disabled = false;
     btn.textContent = '🔍 获取我的成就';
+    _track('导入', '失败', '网络超时');
     return;
   }
 
@@ -1615,6 +1652,7 @@ async function fetchSteamAchievements() {
     statusEl.textContent = '❌ 返回数据异常，请确认 ID 正确';
     btn.disabled = false;
     btn.textContent = '🔍 获取我的成就';
+    _track('导入', '失败', '返回异常');
     return;
   }
   if (data.playerstats.success === false) {
@@ -1622,6 +1660,7 @@ async function fetchSteamAchievements() {
     statusEl.textContent = '❌ ' + (data.playerstats.error || '获取失败') + '。请确认 Steam 个人资料与游戏详情已设为公开';
     btn.disabled = false;
     btn.textContent = '🔍 获取我的成就';
+    _track('导入', '失败', '资料未公开');
     return;
   }
 
@@ -1651,6 +1690,7 @@ async function fetchSteamAchievements() {
   updateStats();
 
   statusEl.style.color = '#27ae60';
+  _track('导入', '成功', _inputType, unlockedSet.size);
   let msg = `✅ 成功！匹配 ${matchedCount}，新增 ${newCount} 个成就（${beforeCount} → ${unlockedSet.size}）`;
   if (unmatched.length > 0) msg += `，${unmatched.length} 个未匹配`;
   statusEl.textContent = msg;
