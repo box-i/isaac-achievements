@@ -644,6 +644,7 @@ var _hmt = _hmt || [];
     <button class="btn" onclick="openImportModal()">📥 导入存档</button>
     <button class="btn" onclick="openGuideModal()">📖 新人指南</button>
     <button class="btn accent" onclick="openDonateModal()">☕ 打赏</button>
+    <button class="btn" onclick="openFeedbackModal()">💬 反馈</button>
   </div>
 </header>
 
@@ -751,6 +752,18 @@ var _hmt = _hmt || [];
         <div style="margin-top:8px;font-size:17px;color:#1677ff;">💙 支付宝</div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal-overlay" id="feedbackModal" style="display:none">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('feedbackModal')">✕</button>
+    <h2 style="font-size:25px;">💬 反馈 / 建议</h2>
+    <p style="font-size:17px;color:var(--text-muted);margin-bottom:18px;line-height:1.7;">
+      发现 bug、wiki 链接打不开、或者有想要的功能？欢迎告诉我，让网站更好用 🙏
+    </p>
+    <div id="feedbackBody" style="display:flex;flex-direction:column;gap:18px;"></div>
   </div>
 </div>
 
@@ -1456,6 +1469,46 @@ function openImportModal() {
 
 function openDonateModal() {
   openModal('donateModal');
+}
+
+// ===== 反馈渠道配置（拿到链接/二维码后填这里即可上线）=====
+const _FEEDBACK = {
+  formUrl: '',     // 腾讯问卷 / 金数据 表单链接，拿到后填入
+  qqNumber: '',    // QQ群号
+  qqQrImg: ''      // QQ群二维码图片路径，如 images/qq-group.png
+};
+const _FEEDBACK_ISSUES = 'https://github.com/box-i/isaac-achievements/issues';
+
+function openFeedbackModal() {
+  try { _hmt.push(['_trackEvent', '反馈', '打开', '反馈弹窗']); } catch (e) {}
+  openModal('feedbackModal');
+  renderFeedbackBody();
+}
+
+// 根据配置是否填好，动态渲染反馈弹窗内容（没填的项显示“搭建中/即将开放”）
+function renderFeedbackBody() {
+  const body = document.getElementById('feedbackBody');
+  if (!body) return;
+  let html = '';
+  // 1) 表单（首选入口）
+  if (_FEEDBACK.formUrl) {
+    html += `<a href="${_FEEDBACK.formUrl}" target="_blank" rel="noopener" class="btn accent" style="display:block;text-align:center;text-decoration:none;font-size:18px;">📋 填写反馈表单</a>`;
+  } else {
+    html += `<div class="btn" style="display:block;text-align:center;opacity:.5;cursor:default;font-size:18px;">📋 反馈表单（搭建中，即将开放）</div>`;
+  }
+  // 2) QQ群
+  if (_FEEDBACK.qqNumber || _FEEDBACK.qqQrImg) {
+    html += `<div style="display:flex;gap:24px;align-items:center;justify-content:center;flex-wrap:wrap;padding:4px 0;">`;
+    if (_FEEDBACK.qqQrImg) {
+      html += `<img src="${_FEEDBACK.qqQrImg}" alt="QQ群二维码" style="width:190px;height:190px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-primary);">`;
+    }
+    html += `<div style="font-size:17px;">🐧 QQ群${_FEEDBACK.qqNumber ? '：' + _FEEDBACK.qqNumber : ''}<br><span style="color:var(--text-muted);font-size:15px;">加群交流、反馈问题、查成就进度</span></div></div>`;
+  } else {
+    html += `<div class="btn" style="display:block;text-align:center;opacity:.5;cursor:default;font-size:18px;">🐧 QQ群（即将开放）</div>`;
+  }
+  // 3) GitHub Issues（给懂技术的用户，次要）
+  html += `<a href="${_FEEDBACK_ISSUES}" target="_blank" rel="noopener" style="display:block;text-align:center;color:var(--text-muted);font-size:15px;text-decoration:underline;">懂技术？也可以在 GitHub 提 Issue</a>`;
+  body.innerHTML = html;
 }
 
 function loadSampleImportData() {
