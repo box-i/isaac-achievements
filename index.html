@@ -1935,8 +1935,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
 
-  // Close modals on overlay click
+  // Close modals on overlay click（导入弹窗除外：里面有输入框，误点空白会丢已填内容，仅用 ✕ / ESC 关闭）
   document.querySelectorAll('.modal-overlay').forEach(o => {
+    if (o.id === 'importModal') return;
     o.addEventListener('click', function(e) { if (e.target === o) closeModal(o.id); });
   });
 
