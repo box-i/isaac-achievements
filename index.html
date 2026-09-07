@@ -1633,19 +1633,33 @@ async function fetchSteamAchievements() {
   statusEl.textContent = '正在通过国内服务器拉取你的成就数据...';
 
   // 走腾讯云函数中转 → Steam 官方 API（国内免翻墙）
+  // 云函数冷启动偶尔会超时(返回 ret_code 错误体而非成就数据)，这里自动重试最多3次，
+  // 避免访客第一次点获取就失败。腾讯错误体形如 {"ret_code":200401,"ret_msg":"..."}
   const apiUrl = 'https://1466156272-bqqkmcb2v1.ap-guangzhou.tencentscf.com/?steamid=' + encodeURIComponent(id);
 
-  let data;
-  try {
-    const resp = await fetch(apiUrl, { signal: AbortSignal.timeout(20000) });
-    data = await resp.json();
-  } catch (e) {
-    statusEl.style.color = '#e74c3c';
-    statusEl.textContent = '❌ 拉取失败：' + (e.message || e) + '，请稍后重试';
-    btn.disabled = false;
-    btn.textContent = '🔍 获取我的成就';
-    _track('导入', '失败', '网络超时');
-    return;
+  let data = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    if (attempt > 1) {
+      statusEl.textContent = '⏳ 服务器繁忙，自动重试（' + attempt + '/3）...';
+      await new Promise(r => setTimeout(r, 1500));
+    }
+    let ok = false;
+    try {
+      const resp = await fetch(apiUrl, { signal: AbortSignal.timeout(25000) });
+      let j = null;
+      try { j = await resp.json(); } catch (e) { j = null; }
+      if (j && j.ret_code) { ok = false; }        // 腾讯错误体 → 当次失败，触发重试
+      else { data = j; ok = true; }
+    } catch (e) { ok = false; }
+    if (ok) break;
+    if (attempt >= 3) {
+      statusEl.style.color = '#e74c3c';
+      statusEl.textContent = '❌ 服务器繁忙，请稍后重试（已自动重试3次）。若持续失败可点右上角"反馈"告诉我';
+      btn.disabled = false;
+      btn.textContent = '🔍 获取我的成就';
+      _track('导入', '失败', '网络超时');
+      return;
+    }
   }
 
   // Steam API 返回校验
